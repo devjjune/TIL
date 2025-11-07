@@ -29,6 +29,7 @@
 - **IntelliJ에서 자바 프로젝트 시작**
   - GitHub에서 생성한 빈 저장소를 로컬에 clone하여 자바 프로젝트 생성
   - 패키지 폴더 생성, gradle 다운로드 후 세팅, `.gitignore` 업데이트, `Sources Root` 지정
+
 - **음악 추천 서비스 '콘솔 버전' 구현 시작**
   - MVC 구조 설계
   - 입력 기능 구현
@@ -51,7 +52,7 @@ Sources Root, Gradle, 패키지 폴더 등을 전부 수동으로 설정해야 �
   - 다음부터는 **IntelliJ에서 프로젝트를 먼저 생성하고 → 이후 GitHub에 push**하는 방식이 훨씬 효율적일 것 같다.
 
 - **`Sources Root` 설정 실수**
-  - 패키지명이 계속 `package findmyvibe;`가 아닌 `package main.java.findmyvibe;` 이런 식으로 전체 경로가 다 떠서 그 원인을 한참 찾았다.
-  - java 패키지만 Source Root로 지정했어야 하는데 src 전체를 지정해버렸다. 
-  - 이렇게 되면 src 밑의 모든 폴더(main/java/...)가 전부 패키지명에 포함된다고 인식해버린다.
-  - Sources Root는 **자바 코드의 시작점**이자 **package 선언의 기준점**이므로, _실제 패키지 명이 시작되는 바로 그 폴더(java)를 지정해야 한다._
+  - 패키지명이 계속 `package findmyvibe;`가 아닌 `package main.java.findmyvibe;`처럼 전체 경로가 다 떠서 그 원인을 한참 찾았다.
+  - 원인은 java 패키지만 Sources Root로 지정했어야 했는데 src 전체를 지정해버린 것이었다. 
+  - 이렇게 하면 src 밑의 모든 폴더(main/java/...)가 전부 패키지명에 포함된다고 인식된다.
+  - Sources Root는 **자바 코드의 시작점**이자 **package 선언의 기준점**이므로, **실제 패키지명이 시작되는 폴더(java)를 Source Root로 지정해야** 한다.
