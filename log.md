@@ -262,3 +262,19 @@ Sources Root, Gradle, 패키지 폴더 등을 전부 수동으로 설정해야 �
 
 <br>
 <br>
+
+# 🗓️ 2025-11-22 (토)
+### ✨ 오늘 한 일
+- ServletWebServerFactory bean 오류 해결 과정에서 관련 개념 정리
+  - 학습 개념: `WebMvcAutoConfiguration`, `TomcatServletWebServerFactory` 등
+
+### 🧠 배운 점
+- 오늘 공부한 내용을 블로그 글에 추가 정리
+  - [[에러] ServletWebServerFactory bean 오류 해결](https://velog.io/@hjy648012/%EC%97%90%EB%9F%AC)
+
+### 💬 회고
+- `SpringApplication.run()` 안의 인자를 잘못 지정한 실수와, 에러 메시지에 등장하는 `ServletWebServerFactory bean`이 어떻게 연결되는지 알아보기 위해, 관련 개념을 학습하며 **에러 메시지의 의미를 이해**했다. 
+- 아직은 에러 메시지가 나올 때마다 검색해서 공부해야 하지만, 나중엔 에러 메시지만 읽고도 대충 어느 부분에 문제가 있는지 짐작할 수 있지 않을까?
+
+<br>
+<br>
