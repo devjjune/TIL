@@ -244,3 +244,21 @@ Sources Root, Gradle, 패키지 폴더 등을 전부 수동으로 설정해야 �
 
 <br>
 <br> 
+
+# 🗓️ 2025-11-18 (화)
+### ✨ 오늘 한 일
+- `SpotifyService.java`: Access Token 발급 및 곡 정보 조회 기능 구현
+- `SpotifyController.java`: Spotify 곡 조회용 API 엔드포인트 추가
+- 스프링 부트 실행 오류 해결: run() 대상 클래스를 잘못 지정해 Web 서버가 뜨지 않았음
+  - Application 실행 대상 클래스를 올바르게 지정
+
+### 🧠 배운 점
+- [[에러] ServletWebServerFactory bean 오류 해결](https://velog.io/@hjy648012/%EC%97%90%EB%9F%AC)
+
+### 💬 회고
+- 전날에 이어 에러가 발생했는데 이번에는 무턱대고 **에러 메시지**를 복붙하지 않고 차근차근 읽어봤다. 
+- `ServletWebServerFactory bean` 키워드를 포함해서 구글링해 본 결과 내 코드의 문제점을 찾고 해결할 수 있었다.
+- 하지만 아직 내 코드의 틀린 부분과 오류 메시지가 어떤 연관이 있는지 잘 모르겠어서 이에 대해 알아봐야 한다.  
+
+<br>
+<br>
