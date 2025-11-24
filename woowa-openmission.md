@@ -1,13 +1,13 @@
 # 🏗️ Open Mission Log
 
 > 우아한테크코스 프리코스(8기) 4~5주차 — 오픈 미션 기록  
-> 기간: 2025.11.04 ~ 2025.11.17  
+> 기간: 2025.11.04 ~ 2025.11.24  
 > 주제: 자유 주제 프로젝트 (자율 설계 및 구현)
 
 </br>
 
 ## 📚 개요
-- 목표: 자바 기반의 웹 프로그램을 스스로 설계하고 구현
+- 목표: 자바와 스프링 기반의 웹 프로그램을 스스로 설계하고 구현
 - 핵심 역량:
   - 객체지향 설계 (OOP)
   - 테스트 코드 작성 (TDD)
@@ -17,11 +17,16 @@
 </br>
 
 ## 📅 진행 기록
-👉 [오픈 미션 일지(log.md)](log.md)
+👉 [오픈 미션 일지(openmission-log.md)](openmission-log.md)
 
-</br>
+<br>
 
-## 🧭 작성 규칙
-- 매일 TIL 기록은 `log.md`에 누적
-- 날짜는 `## YYYY-MM-DD` 형태로 구분
-- 각 날짜마다 `오늘 한 일`, `배운 점`, `회고` 3단 구성
+## 🔗 오픈 미션 과제 목록
+- 🎵 **Find My Vibe 콘솔 미션**  
+  https://github.com/devjjune/find-my-vibe-console.git
+
+- 📝 **스프링 부트 블로그**  
+  https://github.com/devjjune/spring-boot-blog.git
+
+- 🎧 **Find My Vibe 스프링 미션**  
+  https://github.com/devjjune/find-my-vibe-spring.git
