@@ -83,3 +83,29 @@
 
 <br>
 <br>
+
+# 🗓️ 2025-12-02 (화)
+**1. 스프링 시큐리티 구현: 회원 도메인 생성**  
+
+1️⃣ **스프링 시큐리티 의존성** 추가  
+
+2️⃣ 회원 정보를 저장할 테이블과 매핑할 **회원 엔티티(`User.java`)** 생성  
+
+2️⃣-1. **JPA 엔티티 정의 (도메인 계층)**  
+→ DB 테이블과 매핑됨 (Hibernate가 자동 생성)  
+**해당 부분**: @Entity, @Table / @Id, @Column / 필드, 생성자, 빌더 등
+  
+2️⃣-2. **스프링 시큐리티 인증 객체 만들기(UserDetails 구현)**  
+→ User 엔티티가 로그인 과정에서 사용되는 `UserDetails` 역할 수행  
+_UserDetails = 로그인 시 스프링 시큐리티가 요구하는 사용자 정보 형식_  
+**해당 부분**: implements UserDetails 선언, getAuthorities(), getUsername(), getPassword(), isAccountNonExpired(), isAccountNonLocked(), isCredentialsNonExpired(), isEnabled()
+
+3️⃣ 회원 엔티티와 연결되어 데이터를 조회할 **리포지터리(UserRepository)** 구현  
+→ User 엔티티를 DB에서 저장·조회·수정·삭제(CRUD)하는 기능을 제공  
+→ SQL 없이 엔티티 기반으로 DB 접근 가능 (Spring Data JPA의 자동 구현)
+
+4️⃣ 스프링 시큐리티에서 사용자 정보를 불러오는 **서비스(UserDetailsService)** 구현  
+→ 로그인 시 전달받은 이메일(username)을 기준으로 DB에서 회원 객체(UserDetails)를 조회해 인증에 사용
+
+<br>
+<br>
