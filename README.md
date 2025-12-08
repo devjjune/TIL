@@ -9,4 +9,4 @@
 | 기간 | 프로젝트 | 링크 |
 |------|-----------|------|
 | 2025.11 | 오픈 미션 (Woowa Precourse) | [Open Mission Log](woowa-openmission/openmission.md) |
-| 2025.12 | 12월 자기주도학습 | [2025-12 Study Log](2025-12-study/2025-12-study-log.md) |
+| 2025.12 | 12월 자기주도학습 | [2025-12 Study Log](2025-12-study/2025-12-study-overview.md) |
