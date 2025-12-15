@@ -241,3 +241,14 @@ _UserDetails = 로그인 시 스프링 시큐리티가 요구하는 사용자 �
 
 <br>
 <br>
+
+# 🗓️ 2025-12-15 (월)
+**1. 자바 코드 연습**
+- ‘김영한의 실전 자바 - 기본편’ 중 **다형성 파트** 드디어 마무리했다.
+  
+**2. ‘spring-boot-blog’ 에러**
+- 12/10일 JWT 토큰 구현 중 에러 발생
+- 정확히는 `TokenProviderTest`(토큰 생성·검증·인증 처리 테스트)에서 'base64-encoded secret key cannot be null or empty' 에러가 발생했는데 아직 해결하지 못했다.
+
+<br>
+<br>
