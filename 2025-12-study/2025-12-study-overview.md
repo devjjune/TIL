@@ -30,3 +30,6 @@
 ## 🔗 학습 깃허브 목록
 - **스프링 부트 블로그**  
   https://github.com/devjjune/spring-boot-blog.git
+
+- **자바 문제풀이 연습**  
+  https://github.com/devjjune/java-practice.git 
