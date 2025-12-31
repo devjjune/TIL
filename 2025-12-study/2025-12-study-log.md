@@ -352,3 +352,14 @@ _UserDetails = 로그인 시 스프링 시큐리티가 요구하는 사용자 �
 
 <br>
 <br>
+
+# 🗓️ 2025-12-31 (수)
+**1. ‘spring-boot-blog’ 에러 해결!!!**
+- 몇 주 전에 발생해서 해결 못하고 있던 에러를 드디어 해결했다.
+- `base64-encoded secret key` 관련 오류를 해결하려다 테스트 폴더에 `application.yml`을 추가했고, 그로 인해 문제가 더 복잡해진 채로 중단되어 있었다. 오늘 이 두 에러를 모두 해결했다!!
+- `application.yml` 관련 트러블슈팅 회고: [📝 트러블슈팅: 에러 로그는 'Table Not Found'였지만, 범인은 'Resource Overriding'이었다
+](https://velog.io/@hjy648012/%ED%8A%B8%EB%9F%AC%EB%B8%94%EC%8A%88%ED%8C%85-%EC%97%90%EB%9F%AC-%EB%A1%9C%EA%B7%B8%EB%8A%94-Table-Not-Found%EC%98%80%EC%A7%80%EB%A7%8C-%EB%B2%94%EC%9D%B8%EC%9D%80-Resource-Overriding%EC%9D%B4%EC%97%88%EB%8B%A4)
+- **트러블슈팅 과정에서 ‘설정 파일의 우선순위’가 직접적인 원인이 될 수 있음을 알게 되었고, '에러 메시지만으로 원인을 특정할 수 없을 때' 어떻게 대처해야 하는지 배웠다.** 
+
+<br>
+<br>
