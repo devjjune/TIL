@@ -28,3 +28,11 @@
 
 <br>
 <br>
+
+# 🗓️ 2026-01-04 (일)
+1. 문제 해결 회고 작성: [[Spring][JWT] base64-encoded secret key 오류 - 알고 보니 YAML 들여쓰기](https://velog.io/@hjy648012/Spring-Boot-JWT-base64-encoded-secret-key-%EC%98%A4%EB%A5%98-%EC%95%8C%EA%B3%A0-%EB%B3%B4%EB%8B%88-YAML-%EB%93%A4%EC%97%AC%EC%93%B0%EA%B8%B0)
+2. 데브코스 지원서 작성
+3. 기술 블로그 정리: '글의 성격 + 핵심 기술 스택' 별로 태그(카테고리) 구성
+
+<br>
+<br>
