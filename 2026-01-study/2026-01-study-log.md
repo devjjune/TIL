@@ -67,3 +67,12 @@
 
 <br>
 <br>
+
+# 🗓️ 2026-01-11 (일)
+**1. spring-boot-blog : AWS에 프로젝트 배포**
+- 배포 중 발생한 502 에러에 대해 트러블슈팅 회고 작성: [[AWS] Elastic Beanstalk 배포 후 502 오류 원인과 해결](https://velog.io/@hjy648012/AWS-Elastic-Beanstalk-%EB%B0%B0%ED%8F%AC-%ED%9B%84-502-%EC%98%A4%EB%A5%98-%EC%9B%90%EC%9D%B8%EA%B3%BC-%ED%95%B4%EA%B2%B0)
+
+**2. 스프링부트 복습 - 김영한의 스프링 입문 강의 복습**
+
+<br>
+<br>
