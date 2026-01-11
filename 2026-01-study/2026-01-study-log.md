@@ -46,3 +46,24 @@
 
 <br>
 <br>
+
+# 🗓️ 2026-01-07 (수) ~ 2026-01-10 (토)
+**1. spring-boot-blog : AWS에 프로젝트 배포**
+- Elastic Beanstalk로 서버 환경 구성
+  - Elastic Beanstalk 서비스 생성
+  - RDS(MySQL) 생성 및 DB 접속 정보 저장
+  - 애플리케이션에서 사용할 RDS 정보 환경 변수로 관리
+- 로컬에서 RDS 연결 및 초기 세팅
+  - RDS 보안 그룹 인바운드 규칙 수정 (로컬 접속 허용)
+  - IntelliJ Database Navigator 플러그인으로 로컬에서 RDS 연결
+  - SQL 작성하여 초기 테이블 생성
+  - 프로젝트에 MySQL 의존성 추가
+- Elastic Beanstalk에 애플리케이션 배포
+  - 프로젝트 빌드 후 실행 가능한 JAR 파일 생성
+  - Elastic Beanstalk에 JAR 업로드 및 배포
+  - Google OAuth 서비스에 승인된 Redirect URI 추가
+
+**2. 스프링부트 복습 - 김영한의 스프링 입문 강의 복습**
+
+<br>
+<br>
