@@ -253,7 +253,7 @@ Sources Root, Gradle, 패키지 폴더 등을 전부 수동으로 설정해야 �
   - Application 실행 대상 클래스를 올바르게 지정
 
 ### 🧠 배운 점
-- [[에러] ServletWebServerFactory bean 오류 해결](https://velog.io/@hjy648012/%EC%97%90%EB%9F%AC)
+- [[에러] ServletWebServerFactory bean 오류 해결](https://velog.io/@hjy648012/Spring-%EC%84%9C%EB%B2%84%EB%8A%94-%EC%99%9C-%EB%9C%A8%EC%A7%80-%EC%95%8A%EC%95%98%EC%9D%84%EA%B9%8C-ServletWebServerFactory-bean-%EC%98%A4%EB%A5%98%EC%9D%98-%EC%A7%84%EC%A7%9C-%EC%9B%90%EC%9D%B8)
 
 ### 💬 회고
 - 전날에 이어 에러가 발생했는데 이번에는 무턱대고 **에러 메시지**를 복붙하지 않고 차근차근 읽어봤다. 
@@ -270,7 +270,7 @@ Sources Root, Gradle, 패키지 폴더 등을 전부 수동으로 설정해야 �
 
 ### 🧠 배운 점
 - 오늘 공부한 내용을 블로그 글에 추가 정리
-  - [[에러] ServletWebServerFactory bean 오류 해결](https://velog.io/@hjy648012/%EC%97%90%EB%9F%AC)
+  - [[에러] ServletWebServerFactory bean 오류 해결](https://velog.io/@hjy648012/Spring-%EC%84%9C%EB%B2%84%EB%8A%94-%EC%99%9C-%EB%9C%A8%EC%A7%80-%EC%95%8A%EC%95%98%EC%9D%84%EA%B9%8C-ServletWebServerFactory-bean-%EC%98%A4%EB%A5%98%EC%9D%98-%EC%A7%84%EC%A7%9C-%EC%9B%90%EC%9D%B8)
 
 ### 💬 회고
 - `SpringApplication.run()` 안의 인자를 잘못 지정한 실수와, 에러 메시지에 등장하는 `ServletWebServerFactory bean`이 어떻게 연결되는지 알아보기 위해, 관련 개념을 학습하며 **에러 메시지의 의미를 이해**했다. 
