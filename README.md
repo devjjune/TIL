@@ -18,8 +18,8 @@
 ## 🧩 월별 학습 개요 & 날짜별 회고
 | 기간 | 학습 주제 | 개요 | 날짜별 회고 |
 |-----|-----------|------|-------------|
-| 2026.02 | 프로그래머스 데브코스 | [개요](2026-02-study/2026-02-study-overview.md) | [2026-02 Study Log](2026-02-study/2026-02-study-log.md) |
-| 2026.01 | 1월 자기주도학습 | [개요](2026-01-study/2026-01-study-overview.md) | [2026-01 Study Log](2026-01-study/2026-01-study-log.md) |
-| 2025.12 | 12월 자기주도학습 | [개요](2025-12-study/2025-12-study-overview.md) | [2025-12 Study Log](2025-12-study/2025-12-study-log.md) |
-| 2025.11 | 오픈 미션 (우테코 프리코스) | [개요](woowa-openmission/openmission.md) | [Open Mission Log](woowa-openmission/openmission-log.md) |
+| 26.02 | 프로그래머스 데브코스 | [개요](2026-02-study/2026-02-study-overview.md) | [2026-02 Study Log](2026-02-study/2026-02-study-log.md) |
+| 26.01 | 1월 자기주도학습 | [개요](2026-01-study/2026-01-study-overview.md) | [2026-01 Study Log](2026-01-study/2026-01-study-log.md) |
+| 25.12 | 12월 자기주도학습 | [개요](2025-12-study/2025-12-study-overview.md) | [2025-12 Study Log](2025-12-study/2025-12-study-log.md) |
+| 25.11 | 오픈 미션 (우테코 프리코스) | [개요](woowa-openmission/openmission.md) | [Open Mission Log](woowa-openmission/openmission-log.md) |
 
