@@ -78,3 +78,42 @@ MVC 구조에서 View는 흔히 static 기반의 유틸리티 클래스로 남�
 
 <br>
 <br>
+
+# 🗓️ 2026-02-02 (월)
+## 🧩 수업 내용 정리
+### 1. Java Stream
+
+- 정리 문서: [02_수업내용_정리(자바Stream)](02_수업내용_정리(자바Stream).md)
+
+### 2. Git 설치와 설정 방법
+
+- 블로그 정리: [[Mac] Git 설치와 설정법 (Homebrew, GitHub CLI, .zshrc, Docker 등)
+](https://velog.io/@hjy648012/Mac-Git-%EC%84%A4%EC%B9%98%EC%99%80-%EC%84%A4%EC%A0%95%EB%B2%95-Homebrew-GitHub-CLI-.zshrc-Docker-%EB%93%B1)
+
+
+### 3. Git 문법
+#### git log —oneline
+
+- git log에 —online 옵션을 붙이면 간략하게 커밋 기록들을 볼 수 있다.
+- alias를 이용해 편하게 쓰는 법
+
+```bash
+alias gl="git log --oneline"
+```
+
+#### git checkout
+
+- 커밋 간 이동 (시간 여행, 특정 save point를 불러오기)
+
+```bash
+cd ~/Custom/GitProjects/work1
+git log --oneline
+
+git checkout 최초커밋코드 # 과거로 돌아감
+ls # 파일 a 만 존재함
+
+git checkout main # 현재로 돌아옴
+ls # 파일 a, b, c
+```
+<br>
+<br>
