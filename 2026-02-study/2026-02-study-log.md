@@ -125,3 +125,31 @@ ls # 파일 a, b, c
 
 <br>
 <br>
+
+# 🗓️ 2026-02-04 (수)
+## 🧩 명언 게시판 리팩토링
+### 반복문 & 조건문 → 자바 Stream
+크게 복잡한 로직은 아니지만 들여쓰기 depth도 줄일 겸 Stream으로 바꾸는 연습을 했다. 
+```java
+// 리팩토링 전
+private WiseSaying findByTargetId(int targetId) {
+        for (WiseSaying ws : wiseSayingList) {
+            if (ws.getId() == targetId) {
+                return ws;
+            }
+        }
+        return null;
+    }
+```
+```java
+// 리팩토링 후
+private WiseSaying findByTargetId(int targetId) {
+        return wiseSayingList.stream()
+                .filter(ws -> ws.getId() == targetId)
+                .findFirst()
+                .orElse(null);
+    }
+```
+
+<br>
+<br>
