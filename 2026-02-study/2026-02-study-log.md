@@ -241,3 +241,43 @@ def example_function(n):
 
 <br>
 <br>
+
+# 🗓️ 2026-02-11 (수)
+## 🧩 프로그래머스 - 코딩테스트 50 days 강좌
+### Day 2. 해시 셋
+#### 배열 vs 해시 셋
+
+    `{”apple”, “banana”, “list”}`
+
+- 배열: 데이터를 순서대로 빠짐없이 저장, 순서 O, 인덱싱 가능
+- 해시 셋: 해시를 사용, 데이터를 해싱해서 나온 정수의 위치에 저장, 순서 X, 인덱싱 불가능
+
+#### 해시 셋의 특징
+
+1. **데이터 중복 제거**
+    
+    셋은 **데이터 중복을 허용하지 X**, 이미 존재하는 값을 또 추가하면 데이터나 구조가 바뀌지 않고 boolean 값으론 false 반환 (자바 Collection들은 보통 자료구조가 실제로 변경됐는지를 boolean으로 알려줌)
+    
+    **배열 → 해시 셋으로 바꾸면 배열의 중복이 제거됨**
+    
+2. **빠른 데이터 검색**
+    
+    배열: 처음부터 나올때까지 하나하나 검사 vs 해시 셋: 찾으려는 데이터를 해싱한 값에 데이터가 존재하는지만 검사
+    
+    ```java
+    import java.util.HashSet;
+    
+    class Solution {
+    	public void solution() {
+    		String[] arr = {"apple", "apple", "banana"};
+    		
+    		HashSet<String> set = new HashSet<>();
+    		for (int i = 0; i < arr.length; i ++) {
+    			set.add(arr[i]);
+    		}
+    		System.out.println(set.contains("hash"); // 출력: false
+    	}
+    }
+    ```
+<br>
+<br>
