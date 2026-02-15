@@ -329,3 +329,17 @@ Gradle Kotlin DSL 스크립트 모델을 IDE가 정상적으로 인식하지 못
 
 <br>
 <br>
+
+# 🗓️ 2026-02-14 (토)
+### 🧩 Map(HashMap) & Set(HashSet)
+- 블로그 정리: [[JAVA] Map & Set | HashMap & HashSet | 변수와 객체 선언 방식](https://velog.io/@hjy648012/Map-Set-HashMap-HashSet-%EB%B3%80%EC%88%98%EC%99%80-%EA%B0%9D%EC%B2%B4-%EC%84%A0%EC%96%B8-%EB%B0%A9%EC%8B%9D)
+- Set은 중복을 허용하지 않는 자료구조, Map은 key와 value를 한 쌍으로 저장하는 자료구조이다. 
+- HashSet과 HashMap은 각각 Set과 Map을 해시를 이용해서 구현한 구현체이다. 
+- 변수 타입은 인터페이스로, 객체 생성은 구현체로 하는 것이 객체지향과 추상화 원칙에 부합한다. 
+```java
+Map<String, Integer> map = new HashMap<>();
+Set<Integer> set = new HashSet<>();
+```
+
+<br>
+<br>
