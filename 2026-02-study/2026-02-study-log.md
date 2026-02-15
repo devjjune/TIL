@@ -238,6 +238,9 @@ def example_function(n):
 # 🗓️ 2026-02-10 (화)
 ### 🧩 리액트 복습 및 정리
 → [[React] 백엔드를 위한 리액트 간단 정리](https://velog.io/@hjy648012/React-%EB%B0%B1%EC%97%94%EB%93%9C%EB%A5%BC-%EC%9C%84%ED%95%9C-%EB%A6%AC%EC%95%A1%ED%8A%B8-%EA%B0%84%EB%8B%A8-%EC%A0%95%EB%A6%AC)
+- JSX는 자바스크립트의 확장 문법으로, **자바스크립트 파일 안에 HTML을 작성**할 수 있게 해 **UI와 로직을 하나의 컴포넌트로** 묶을 수 있다.
+- Babel은 전처리기로서 브라우저가 JSX 코드를 이해할 수 있도록 순수 자바스크립트 함수 객체로 변환한다. 
+- 실제 JSX 파일 구조는 각각의 컴포넌트가 주인공이 되는 **컴포넌트 파일**, 컴포넌트 파일들을 하나의 최상위 컴포넌트에 조립하는 **App 파일**, App 컴포넌트를 HTML의 root 엘리먼트에 최종적으로 주입(렌더링)하는 **Main 파일**로 이루어져 있다. 
 
 <br>
 <br>
@@ -335,7 +338,7 @@ Gradle Kotlin DSL 스크립트 모델을 IDE가 정상적으로 인식하지 못
 - 블로그 정리: [[JAVA] Map & Set | HashMap & HashSet | 변수와 객체 선언 방식](https://velog.io/@hjy648012/Map-Set-HashMap-HashSet-%EB%B3%80%EC%88%98%EC%99%80-%EA%B0%9D%EC%B2%B4-%EC%84%A0%EC%96%B8-%EB%B0%A9%EC%8B%9D)
 - Set은 중복을 허용하지 않는 자료구조, Map은 key와 value를 한 쌍으로 저장하는 자료구조이다. 
 - HashSet과 HashMap은 각각 Set과 Map을 해시를 이용해서 구현한 구현체이다. 
-- 변수 타입은 인터페이스로, 객체 생성은 구현체로 하는 것이 객체지향과 추상화 원칙에 부합한다. 
+- **변수 타입은 인터페이스로, 객체 생성은 구현체로** 하는 것이 객체지향과 추상화 원칙에 부합한다. 
 ```java
 Map<String, Integer> map = new HashMap<>();
 Set<Integer> set = new HashSet<>();
