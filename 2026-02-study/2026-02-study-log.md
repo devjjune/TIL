@@ -281,3 +281,26 @@ def example_function(n):
     ```
 <br>
 <br>
+
+# 🗓️ 2026-02-12 (목)
+### 🧩 테일윈드란?
+- 유틸리티 기반 CSS 프레임워크로, **별도의 CSS 파일을 많이 작성하지 않고 JSX 파일의 HTML 태그 안에 유틸리티 클래스를 직접 작성**하여 스타일을 적용한다. 이를 통해 더 직관적이고 간결한 코드를 작성할 수 있다.
+- 메인 CSS 파일에는 Tailwind의 지시어(@tailwind base, components, utilities 등)를 작성하고, 이를 메인 JS 파일에서 import하여 사용한다.
+- 빌드 과정에서 실제로 사용된 클래스만 모아 최종 CSS 파일이 생성되며, 브라우저는 이를 일반 CSS처럼 해석한다.
+- 테일윈드 적용 예시 : 
+```jsx
+export function NaverLink() {
+  return (
+    <a 
+      href="https://www.naver.com/" 
+      target="_blank"
+      className="text-green-600 hover:text-green-800 font-bold underline"
+    >
+      네이버
+    </a>
+  );
+}
+```
+
+<br>
+<br>
