@@ -346,3 +346,59 @@ Set<Integer> set = new HashSet<>();
 
 <br>
 <br>
+
+# 🗓️ 2026-02-15 (일)
+## 리액트, CSS 및 프론트 복습
+### 🧩 컴포넌트의 용도
+>**컴포넌트 = 사용자 정의 태그**  
+>컴포넌트의 장점: 재사용할 수 있고 UI와 비즈니스 로직을 하나로 묶어준다.  
+
+구조가 반복되는 jsx 함수는 컴포넌트로 만들어 재사용할 수 있고, 파라미터 자리에 props 객체를 넣어 객체의 속성을 불러오듯 `props.text`와 같은 형태로 값을 호출할 수 있다.   
+```jsx
+function Link({text, href}) { //v3 매개변수에서 바로 구조 분해 할당 받기
+  
+// v1 일반적인 할당
+//   const text = props.text;
+//   const href = props.href;
+  
+// v2 구조 분해 할당
+// const {text, href} = props;
+  
+    return (
+        <a target="_blank" href={href}>
+            {text}
+        </a>
+    );
+}
+```
+### 🧩 id 선택자와 class 선택자
+id와 class라는 속성을 필요한 태그에 선택적으로 부여할 수 있다. id는 식별자 역할을 하기 때문에 고유하게 부여해야 하고, 하나의 태그는 두 개 이상의 class에 속할 수 있다. 
+```html
+<div id="no1">내용 1</div>
+<div>내용 2</div>
+<div class="no2 no3">내용 3</div>
+<div>내용 4</div>
+<div class="no2">내용 5</div>
+```
+```css
+div#no1 {
+	color: red;
+}
+div.no2 {
+	color: green;
+}
+div.no3 {
+	text-decoration: underline;
+}
+```
+### 🧩 리액트의 useState
+리액트는 **일반 변수**의 값이 바뀌면 화면을 다시 그리지 않지만, **특별하게 지정된 값(State)이 바뀌면** 화면을 알아서 다시 그린다.  
+화면에 반영하고 싶은 값을 전용 보관함인 State에 담으면, 그 값이 바뀔 때만 화면을 다시 그려준다.   
+→ `useState` 상태 사용. "렌더링할 값을 따로 지정한다"
+```jsx
+const [count, setCount] = useState(0); // [변수, setter함수]
+```
+
+
+<br>
+<br>
