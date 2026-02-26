@@ -535,3 +535,26 @@ new Dog()는 객체를 생성하는 부분이다.
 
 <br>
 <br>
+
+# 🗓️ 2026-02-25 (수)
+### 🧩 LMS 자바 2주차 강의
+
+프로그램  
+= 정보 + 처리  
+= 구조화된 데이터 + 논리적 절차  
+= 자료구조 + 알고리즘  
+(언어는 이를 표현하는 수단일 뿐)
+
+### valueOf() vs toString()
+`valueOf()`: 숫자/boolean/null-safe → 문자열 변환 시 사용  
+
+내부 구현: 각 타입의 toString()을 대신 호출해주는 중간자 역할
+
+```java
+return Long.toString();
+```
+
+cf. `toString()`은 객체가 null이면 터짐 → `valueOf()`가 더 안정적
+
+<br>
+<br>
