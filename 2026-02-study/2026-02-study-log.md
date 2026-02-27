@@ -558,3 +558,126 @@ cf. `toString()`은 객체가 null이면 터짐 → `valueOf()`가 더 안정적
 
 <br>
 <br>
+
+# 🗓️ 2026-02-27 (금)
+## 1️⃣ LMS 자바 2주차 강의
+### 🧩 List, ArrayList, LinkedList
+### 1. List
+```java
+List<String> list;
+```
+- 인터페이스
+- '순서가 있고 중복이 허용되는 자료구조'라는 규약
+- 직접 new 못 함
+
+### 2. ArrayList
+```java
+List<String> list = new ArrayList<>();
+```
+- 내부가 배열 기반
+- 조회(인덱스 접근) 빠름 → O(1)
+- 중간 삽입/삭제 느림 → O(n)
+
+### 3. LinkedList
+```java
+List<String> list = new LinkedList<>();
+```
+- 내부가 노드 연결 구조
+- 삽입/삭제 빠름 → O(1) (위치 알고 있으면)
+- 인덱스 접근 느림 → O(n)
+
+<br>
+
+## 2️⃣ 데브코스 수업 - 엔티티 연관관계 매핑
+### 🧩 엔티티 연관관계 매핑 시 DB 방식보단 객체 참조 방식(객체 그래프 탐색)을 사용하는 이유
+
+JPA는 테이블 중심이 아니라 객체 중심으로 설계하는 기술이다.
+DB 방식은 외래 키(FK)를 기준으로 다시 조회하는 방식이며, SQL의 조인을 통해 관계를 표현한다.
+
+반면 JPA는 객체 간 참조를 기반으로 연관관계를 맺고,
+객체 그래프를 따라 자연스럽게 탐색할 수 있도록 설계되어 있다.
+
+따라서 JPA에서는 객체 그래프 탐색 방식을 이해해야
+연관관계 매핑, 지연 로딩(LAZY), 영속성 컨텍스트 등의 핵심 개념을 올바르게 활용할 수 있다.
+
+```java
+//--- 1. 답글로 부터 질문을 찾아가는 방법
+
+Answer a = new Answer();
+
+// DB 방식 예시
+questionRepository.findById(a.question.getId())
+
+// 자바 방식 예시
+Question question = a.getQuestion();
+
+question.getContent();
+a.getQuestion().getContent();
+
+
+//--- 2. 특정 질문에 달린 모든 답글들
+
+// DB 방식 예시
+Question q1 = questionRepository.findById(1); // 특정 질문
+answerRepository.findByQuestionId(q1.getId()); // 특정 질문에 달린 답변들
+
+// 자바 방식 예시
+Question q1 = questionRepository.findById(1); // 특정 질문
+q1.getAnswerList(); // 특정 질문에 달린 답변들
+```
+
+### 🧩 연관관계 매핑 규칙
+- `@ManyToOne`으로 다른 엔티티와 연결하기
+  - 연관관계는 보통 `@ManyToOne`을 기준으로 설계한다. 외래키는 대체로 Many쪽 테이블에 존재하므로 객체에서도 자연스럽게 FK가 있는 쪽에서 매핑하게 된다. (연관관계의 주인)
+  - `@OneToMany`는 필수는 아니고 객체 탐색 편의를 위한 선택 기능이다. 
+
+- 양방향 관계를 표현할 때 `mappedBy`를 사용한다
+  - `mappedBy`를 붙이면 외래키를 갖지 않는다 → One쪽에 붙인다
+  - 외래키는 DB에서 한 쪽 테이블에만 존재하므로 연관관계의 주인은 하나
+
+```
+[DB 구조 예시 (Question 1 : N Answer)]
+
+answer 테이블 ← 연관관계의 주인 (@ManyToOne)
+- id (PK)
+- question_id (FK) 
+
+question 테이블 ← (@OneToMany, mappedBy)
+- id (PK)
+```
+
+<br>
+
+## 3️⃣ 블로그 프로젝트 리팩토링 & 확장 시작 (Git 태그, 브랜치)
+### 🧩 이전 배포 버전까지 v1.0.0으로 태그 작성 
+#### Q. 왜 태그로 버전 관리를 해야 하나?
+태그는 프로젝트의 특정 릴리즈 버전에 박제해놓기 때문에 해당 버전으로 언제든지 안정적으로 돌아갈 수 있다.  
+cf. 브랜치는 계속 변함
+
+배포 버전 관리가 필요한 이유: 언제 어떤 기능이 들어갔는지 파악할 수 있고 특정 버전에서만 발생하는 버그도 빠르게 찾을 수 있다. 
+
+시멘틱 버저닝: 숫자 세 자리로 버전을 표기하는 방법 (Major.Minor.Patch)
+- Major: 이전 버전과 호환되지 않는 엄청 큰 변화
+- Minor: 호환이 깨지지 않는 선에서의 기능 추가
+- Patch: 버그 픽스와 같은 수정
+
+Git Tag: 특정 커밋에 이름을 부여하는 기능으로, 변경 사항을 특정 버전으로 표시하거나 중요한 순간을 기록할 때 유용하다
+
+> 참고 블로그:  
+> https://hianna.tistory.com/1159  
+> https://velog.io/@minsulog/Git-Tag%EB%A1%9C-%EB%B2%84%EC%A0%84-%EA%B4%80%EB%A6%AC%ED%95%98%EA%B8%B0
+
+
+### 🧩 새로운 버전 개발은 브랜치로 분리 - Git Flow와 Git Branch 컨벤션
+Git Flow는 Git의 브랜치를 관리하는 전략으로, 크게 5가지 종류의 브랜치가 존재한다. (main, develop, feature, release, hotfix) 이중 main과 develop 브랜치는 항상 유지되고 나머지는 일정 기간동안 유지되고 merge되면 사라진다.  
+
+이번 블로그 프로젝트에서는 버전 1 이후로 자바/스프링의 버전을 업그레이드하고 기능을 확장할 것이다. 따라서, 먼저 develop 브랜치에서 환경 업그레이드 및 전반적인 리팩토링을 진행하고 이후 feature 브랜치에서 본격적으로 개별 기능을 추가할 계획이다. 
+
+**_태그에는 직접적인 버전 숫자를 명시하고, 브랜치명에는 작업의 목적과 역할을 담는 것이 좋다!_**
+
+> 참고 블로그:  
+> https://techblog.woowahan.com/2553/  
+> https://chaechae.life/blog/simplified-git-conventions
+
+<br>
+<br>
