@@ -536,6 +536,119 @@ new Dog()는 객체를 생성하는 부분이다.
 <br>
 <br>
 
+# 🗓️ 2026-02-21 (토) ~ 2026-02-22 (일)
+## 김영한의 스프링 핵심 원리 - 기본편 : 스프링의 핵심 컨셉
+### 🧩 스프링 생태계 - 스프링 프레임워크 & 스프링 부트
+스프링 생태계는 가장 핵심이 되는 스프링 프레임워크와 스프링 부트, 그리고 기타 선택 사항인 스프링 데이터, 스프링 세션, 스프링 시큐리티, 스프링 Rest Docs, 스프링 배치, 스프링 클라우드 등으로 이루어져 있다. 
+
+**스프링 프레임워크**의 핵심 기술에는 스프링 DI 컨테이너, AOP, 이벤트 등이 있고 기타 기술들은 이를 기반으로 하고 있다.   
+```
+[기타 기술]
+• 웹 기술: 스프링 MVC, 스프링 WebFlux
+• 데이터 접근 기술: 트랜잭션, JDBC, ORM 지원, XML 지원
+• 기술 통합: 캐시, 이메일, 원격접근, 스케줄링
+• 테스트: 스프링 기반 테스트 지원
+• 언어: 코틀린, 그루비
+```
+**스프링 부트**는 스프링 프레임워크를 편리하게 사용할 수 있도록 해주는 기술이다.   
+Tomcat 같은 웹 서버를 내장해서 별도의 웹 서버를 설치하지 않고 스프링 애플리케이션을 단독으로 쉽게 생성할 수 있도록 해준다.   
+또한 starter 종속성을 제공해서 필요한 라이브러리 묶음을 쉽게 가져올 수 있도록 해주고, 라이브러리 간 버전 관리도 해준다. 
+
+### 🧩 스프링의 핵심 컨셉
+>**스프링은 "자바 언어 기반의 프레임워크"**   
+
+자바의 가장 큰 특징은 **객체지향 언어**라는 점이고, 따라서 스프링은 이 특징을 살려 좋은 객체 지향 애플리케이션을 개발할 수 있도록 한다. 
+
+>**그렇다면 좋은 객체 지향 프로그래밍이란 무엇인가?**
+
+객체 지향의 특징에는, [추상화, 캡슐화, 상속, 다형성]이 있는데 이중에서 **다형성**이 가장 중요하다.     
+객체지향에서는 객체가 제공하는 기능을 **역할(인터페이스)** 과 **구현(클래스)** 으로 분리하고, 다형성을 통해 하나의 역할을 여러 구현체가 수행할 수 있도록 한다.  
+이런 점은 객체 간 협력 관계에서 유리한데, **클라이언트(기능을 요청하는 객체)를 수정하지 않고 서버(기능을 제공하는 객체)를 유연하게 변경할 수 있다.** 
+```
+호출 흐름: 클라이언트 → 인터페이스(역할) → 구현체(서버)
+```
+
+### 🧩 좋은 객체 지향 설계의 5가지 원칙 (SOLID)
+SRP (Single Responsibility Principle) : 단일 책임 원칙   
+- 한 클래스는 하나의 책임만 가져야 한다. 
+- 책임이라는 기준은 모호하게 느껴질 수 있는데 중요한 건 **변경**이다. 변경이 있을 때 파급 효과가 적어야 한다.
+
+OCP (Open/Closed Principle): 개방-폐쇄 원칙
+- 확장에는 열려 있으나 변경에는 닫혀 있다
+- 다형성을 사용해도 이 원칙을 지킬 수 없는 경우가 있다 ????
+  
+LSP (Liskov Substitution Principle) : 리스코프 치환 원칙
+- 하위 클래스는 인터페이스 규약을 다 지켜야 한다 (프로그램의 정확성을 깨뜨리지 않고 하위 타입의 인스턴스로 바끌 수 있어야)
+
+ISP (Interface segregation principle): 인터페이스 분리 원칙
+- 특정 클라이언트를 위한 인터페이스 여러 개가 범용 인터페이스 하나보다 낫다
+- 인터페이스의 명확성과 대체 가능성
+
+DIP (Dependency inversion principle) : 의존관계 역전 원칙
+- 추상화(역할)에 의존해야지 구체화에 의존하면 안된다 (의존성 주입)
+
+>**💥 핵심: 다형성만으로 OCP, DIP을 지킬 수 없을 땐 어떻게 해야 하나?**
+
+예를 들어 Service 클래스는 구현 클래스를 직접 선택해야 하므로 `MemberRepository m = new MemoryMemberRepository();` 이런 식으로 선언하면서 구현 클래스에도 의존하게 될 수 밖에 없다.   
+
+### 🧩 스프링은 이를 가능하게 해준다 !!!!
+스프링의 **DI 컨테이너**를 통해 의존성을 주입해 의존관계를 형성할 수 있다.   
+따라서 클라이언트 코드의 변경 없이 기능 확장이 용이하다. 앞서 기술했던 것처럼, 구현체를 쉽게 부품을 교체하듯이 개발할 수 있다.  
+
+아래는 스프링 DI 컨테이너를 구현한 `AppConfig.class`이다. 이 클래스는 애플리케이션이 실제로 동작하게 하는 **구현 객체를 생성**하고, 생성한 객체 인스턴스의 참조를 **생성자를 통해 주입(연결)** 해준다.   
+이 클래스를 통해 애플리케이션은 크게 사용 영역과 구성 영역으로 분리되어 각자의 책임에만 집중할 수 있다. 
+
+```java
+@Configuration
+public class AppConfig { // 전체 역할과 구현 관계를 한 눈에 파악 가능
+    @Bean
+    public MemberService memberService() {
+        return new MemberServiceImpl(memberRepository());
+    }
+
+    @Bean
+    public MemberRepository memberRepository() {
+        return new MemoryMemberRepository();
+    }
+
+    @Bean
+    public OrderService orderService() {
+        return new OrderServiceImpl(memberRepository(), discountPolicy());
+    }
+
+    @Bean
+    public DiscountPolicy discountPolicy() {
+        return new RateDiscountPolicy();
+    }
+}
+```
+
+이렇게 되면 `MemberServiceImpl`은 구현체인 `MemoryMemberRepository`를 의존하지 않고 `MemberRepository` 인터페이스에만 의존한다. `MemberServiceImpl` 의 생성자를 통해서 어떤 구현 객체를 주입할지는 오직 외부(`AppConfig` )에서 결정된다. 
+
+```java
+public class MemberServiceImpl implements MemberService {
+
+  private final MemberRepository memberRepository;
+
+  public MemberServiceImpl(MemberRepository memberRepository) {
+      this.memberRepository = memberRepository;
+  }
+
+  @Override
+  public void join(Member member) {
+      memberRepository.save(member);
+  }
+
+  @Override
+  public Member findMember(Long memberId) {
+      return memberRepository.findById(memberId);
+  }
+}
+```
+
+<br>
+<br>
+
 # 🗓️ 2026-02-25 (수)
 ### 🧩 LMS 자바 2주차 강의
 
