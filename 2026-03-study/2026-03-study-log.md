@@ -90,6 +90,31 @@ JPA에서 연관관계를 조회할 때 데이터를 가져오는 시점 (Fetch)
 <br>
 <br>
 
+# 🗓️ 2026-03-06 (금)
+## 🧩 Spring Boot 4.0 환경에서의 토큰 테스트 코드 트러블슈팅
+### 1. 문제 상황
+- Java 25, Spring Boot 4.0으로 프로젝트 환경 업그레이드
+- 이전에 작성했던 테스트 코드에 `ObjectMapper`, `@AutoConfigureMockMvc` 등 주요 클래스의 패키지 경로를 찾지 못하는 컴파일 에러 발생
+- 컴파일 에러 해결 후 테스트 실행 시, OAuth2 및 Security 설정 미비로 인한 `UnsatisfiedDependencyException` 발생 및 테스트 실패
+
+### 2. 원인 분석
+- **라이브러리 메이저 업데이트**: Jackson 라이브러리가 업데이트되면서 패키지 경로가 `com.fasterxml.jackson`에서 `tools.jackson`으로 변경됨을 확인
+- **스프링 부트 구조 재편**: 최신 버전에서는 테스트 자동 설정 패키지가 `webmvc.test.autoconfigure` 등으로 세분화되거나 변경되어 기존 `import` 문이 유효하지 않게 됨
+- **보안 필터 간섭**: `@SpringBootTest` 실행 시 전체 애플리케이션 컨텍스트를 로드하면서, 테스트 환경에 설정되지 않은 OAuth2 클라이언트 정보로 인해 빈(Bean) 생성에 실패함
+
+### 3. 해결을 위한 시도 및 학습 내용
+- **라이브러리 직접 탐색**: IntelliJ의 `External Libraries`를 직접 뒤져 변경된 클래스 패키지 경로를 추적하는 법을 익힘
+- **수동 주입(Manual Setup)의 활용**: 어노테이션 기반의 자동 설정(`@AutoConfigureMockMvc`)이 고장 났을 때, `WebApplicationContext`를 이용해 `MockMvc`를 직접 빌드하는 **Low-level 제어 방식**을 학습함
+- **공식 문서 읽기**: Spring Framework와 Spring Boot 문서의 차이를 이해하고, 최신 API 명세서에서 `@interface` 및 패키지 주소를 확인하는 법을 체득함
+
+### 4. 회고
+- **Keep**: 에러 메시지의 `Caused by`를 끝까지 추적하여 문제의 본질(Security/OAuth2)을 찾아내려 노력한 점
+- **Problem**: 환경 변화(버전 업)에 따른 패키지 경로 변경 가능성을 간과하고 기존 코드에만 의존하려 했던 점
+- **Try**: 다음에는 새로운 기술 스택을 도입할 때 공식 문서의 **Release Notes**를 먼저 훑어보고, 환경 설정(Configuration) 문제를 격리하기 위해 최소 단위의 테스트부터 시작할 것
+
+<br>
+<br>
+
 # 🗓️ 2026-03-07 (토)
 ## 김영한의 스프링 핵심 원리 - 기본편
 ### 🧩 싱글톤 컨테이너
