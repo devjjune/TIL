@@ -309,3 +309,16 @@ MockMvc는 Spring MVC 계층을 테스트하기 위한 도구로 주로 **컨트
 
 <br>
 <br>
+
+# 🗓️ 2026-03-11 (수) ~ 2026-03-12 (목)
+### 🧩 [트러블슈팅] Spring Boot 4.0 & JJWT 0.13 마이그레이션: JWT 인증 테스트 에러 해결
+
+- [[트러블슈팅] Spring Boot 4.0 & JJWT 0.13 마이그레이션: JWT 인증 테스트 에러 해결](https://velog.io/@hjy648012/%ED%8A%B8%EB%9F%AC%EB%B8%94%EC%8A%88%ED%8C%85-Spring-Boot-4.0-JJWT-0.13-%EB%A7%88%EC%9D%B4%EA%B7%B8%EB%A0%88%EC%9D%B4%EC%85%98-JWT-%EC%9D%B8%EC%A6%9D-%ED%85%8C%EC%8A%A4%ED%8A%B8-%EC%97%90%EB%9F%AC-%ED%95%B4%EA%B2%B0)
+- [JJWT 0.10.0 이후 signWith(SignatureAlgorithm, String) 메서드 deprecated](https://velog.io/@hjy648012/JJWT-0.10.0-%EC%9D%B4%ED%9B%84-signWithSignatureAlgorithm-String-%EB%A9%94%EC%84%9C%EB%93%9C-deprecated)
+
+1. 스프링 업그레이드에 따른 의존성 수정 : Mock 관련 어노테이션 인식 불가 (TokenApiControllerTest)
+2. jjwt 버전 마이그레이션 : 빌더 메서드 명칭 변경, Key 생성 방식 변경 (TokenProvider, TokenProviderTest)
+3. 설정 파일 (application.yml) 오타
+
+<br>
+<br>
