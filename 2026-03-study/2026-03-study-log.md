@@ -322,3 +322,10 @@ MockMvc는 Spring MVC 계층을 테스트하기 위한 도구로 주로 **컨트
 
 <br>
 <br>
+
+# 🗓️ 2026-03-13 (금)
+
+프로젝트 확장 기획: [project-plan.md](project-plan.md)
+
+<br>
+<br>
