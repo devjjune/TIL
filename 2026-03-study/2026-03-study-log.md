@@ -329,3 +329,12 @@ MockMvc는 Spring MVC 계층을 테스트하기 위한 도구로 주로 **컨트
 
 <br>
 <br>
+
+# 🗓️ 2026-03-15 (일) ~ 2026-03-16 (월)
+### 🧩 깃허브 Action CI 도전과 트러블슈팅
+
+블로그 기록:  
+[[트러블슈팅] GitHub Actions CI 실패 – spring-boot-starter-security-test 의존성 groupId 오류](https://velog.io/@hjy648012/%ED%8A%B8%EB%9F%AC%EB%B8%94%EC%8A%88%ED%8C%85-GitHub-Actions-CI-%EC%8B%A4%ED%8C%A8-spring-boot-starter-security-test-%EC%9D%98%EC%A1%B4%EC%84%B1-groupId-%EC%98%A4%EB%A5%98)
+
+<br>
+<br>
