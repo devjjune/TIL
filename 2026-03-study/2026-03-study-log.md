@@ -338,3 +338,23 @@ MockMvc는 Spring MVC 계층을 테스트하기 위한 도구로 주로 **컨트
 
 <br>
 <br>
+
+# 🗓️ 2026-03-17 (화) ~ 2026-03-18 (수)
+## 🧩 String은 불변(immutable)
+
+String은 원본을 절대 바꾸지 않고, 새로운 값을 만들어 반환한다.  
+따라서 `split()`, `replace()`, `substring()` 등 String 메서드를 호출하면
+원본이 변경되는 것이 아니라 **새로운 결과가 반환된다.**
+
+즉, String 관련 메서드를 사용할 때는 **결과를 반드시 변수에 담아야 한다.**
+
+## 🧩 테스트 환경에서 JWT 환경변수 주입 문제 해결
+
+CI를 진행하면서 JWT 비밀키를 포함한 환경 변수를 주입하는 방식을 바꾸었다.
+
+main 환경과 CI 환경에서는 정상적으로 변수가 주입되었으나 테스트 환경에서 계속 오류가 발생해, 테스트 전용 환경 파일을 작성하고 `@ActiveProfiles("test")`를 통해 테스트 환경 분리를 함으로써 문제를 해결했다. 
+
+블로그 기록: [[트러블슈팅] 테스트 환경에서 JWT 환경변수 주입 문제 해결 (DecodingException, WeakKeyException)](https://velog.io/@hjy648012/%ED%8A%B8%EB%9F%AC%EB%B8%94%EC%8A%88%ED%8C%85-%ED%85%8C%EC%8A%A4%ED%8A%B8-%ED%99%98%EA%B2%BD%EC%97%90%EC%84%9C-JWT-%ED%99%98%EA%B2%BD%EB%B3%80%EC%88%98-%EC%A3%BC%EC%9E%85-%EB%AC%B8%EC%A0%9C-%ED%95%B4%EA%B2%B0-DecodingException-WeakKeyException)
+
+<br>
+<br>
