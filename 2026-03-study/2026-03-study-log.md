@@ -405,3 +405,40 @@ const f = () => {}
 
 <br>
 <br>
+
+# 🗓️ 2026-03-29 (일)
+## 🧩 클라이언트 → 서버 데이터 전달 방식
+#### 1. Query String
+- URL에 붙여서 전달
+- ex) `/posts?username=user1`
+- `@RequestParam`
+
+#### 2. Form
+- form 태그로 전송
+- ex) `title=제목&content=내용`
+- `@RequestParam`
+
+#### 3. Request Body (JSON)
+- JSON 형태로 전달
+- ex) `{ "title": "...", "content": "..." }`
+- `@RequestBody`
+
+※ `@RequestParam` = query + form 둘 다 받음  
+※ `@RequestBody` = JSON 전용
+
+<br>
+
+## 🧩 커스텀 예외 구조
+#### 1. ServiceException
+- 비즈니스 로직에서 발생하는 예외를 정의하는 커스텀 예외 클래스 (**throw** 하는 쪽)
+- 기본 RuntimeException은 의미가 모호하므로, 에러 코드와 메시지를 포함한 명확한 예외를 사용한다.
+- ServiceException은 에러 데이터 구조(형식)를 정의하며, 실제 에러 내용은 throw 시점에 결정된다
+- 에러 코드와 메시지를 포함하여 API 응답에 바로 활용 가능
+
+#### 2. GlobalExceptionHandler
+- 발생한 예외를 잡아 공통 응답 형태로 변환하는 전역 핸들러 (**catch** 하는 쪽)
+- `@ExceptionHandler`를 사용하여 특정 예외를 처리
+- 컨트롤러의 try-catch를 대체하여 예외 처리 로직을 중앙에서 관리
+
+<br>
+<br>
