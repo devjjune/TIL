@@ -50,13 +50,19 @@ public class SecurityConfig {
 <br>
 <br>
 
-# 🗓️ 2026-07-09 (목)
+# 🗓️ 2026-07-09 (목) ~ 2026-07-10 (금)
 ## 🧩 Spring IoC 컨테이너와 Bean
+
+**📌 공식 문서 참고:** [Container Overview](https://docs.spring.io/spring-framework/reference/core/beans/basics.html)  
+**📌 강의 참고:** 김영한의 스프링 핵심 원리 - 기본편
+
 - **IoC**: 객체가 의존성을 직접 만들지 않고, 컨테이너가 대신 생성해서 주입
 - **DI**: IoC를 실현하는 방법. 생성자 인자 / 팩토리 메서드 인자 / setter로 의존성을 "정의"만 하면 컨테이너가 주입
 - **핵심 인터페이스**
   - `BeanFactory`: 기본 컨테이너 기능
-  - `ApplicationContext`: BeanFactory + AOP, 국제화, 이벤트 발행 등 (실무 표준)
+  - `ApplicationContext` (실무 표준): BeanFactory + 부가 기능
+    - BeanFactory의 기능을 상속받음
+    - 부가 기능: 국제화, 이벤트 발행, 환경 변수, 리소스 조회, AOP 처리기(BeanPostProcessor) 등록 등
 - **Bean**: 컨테이너가 생성·조립·관리하는 객체. 설정 메타데이터(XML, @Configuration 등)에 Bean과 의존관계가 정의됨
 
 ```
@@ -73,6 +79,69 @@ public class SecurityConfig {
             생명주기 관리
         (초기화 → 사용 → 소멸)
 ```
+### ApplicationContext 생성 방식  
+스프링 컨테이너(ApplicationContext)는 XML 설정 또는 애노테이션 기반 자바 설정 클래스(@Configuration)를 읽어들여 만들어지며, 어떤 방식의 설정 메타데이터를 쓰느냐에 따라 컨테이너의 구현체가 달라진다. 요즘은 애노테이션 기반 자바 설정 클래스를 주로 사용한다. 
+
+### 각 방식별 구현체
+
+| 설정 방식 | ApplicationContext의 구현체 |
+|---|---|
+| XML 설정 | `ClassPathXmlApplicationContext` |
+| 애노테이션 기반 자바 설정 클래스 | `AnnotationConfigApplicationContext` |
+| 애노테이션 기반 + 웹 애플리케이션 (Spring Boot) | `AnnotationConfigServletWebServerApplicationContext` |
+
+```
+ApplicationContext (인터페이스)
+    ├── ClassPathXmlApplicationContext        ← XML 읽음
+    ├── AnnotationConfigApplicationContext    ← @Configuration 클래스 읽음
+    └── AnnotationConfigServletWebServerApplicationContext
+              ← @Configuration 클래스 읽음 + 내장 웹 서버 통합 (Spring Boot 웹 앱이 실제로 쓰는 것)
+```
+**어떤 형식의 설정 메타데이터를 쓰느냐가 구현체를 결정**한다.  
+우리 프로젝트(Spring Boot 웹 앱)에는 `AnnotationConfigServletWebServerApplicationContext`가 내부적으로 쓰인다. (컴포넌트 스캔/자동설정 읽는 로직 + 내장 톰캣 구동)
+
+### BeanDefinition — 설정 메타데이터의 통일된 내부 표현
+컨테이너 내부에서 설정 메타데이터(XML, @Configuration, @Component 스캔 등)는 **BeanDefinition 인터페이스**로 통일되어 표현되며, @Bean(또는 `<bean>`)당 각각 하나씩 생성된다. **컨테이너 로직은 BeanDefinition 추상화에만 의존**한다.
+
+<br>
+<br>
+
+# 🗓️ 2026-07-10 (금)
+## 🧩 Spring 애플리케이션을 실행하면 무슨 일이 벌어질까?
+
+### 1단계 — `SpringApplication.run()`
+- `main()`에서 호출되면 `ApplicationContext` 구현체 생성 (웹 앱이면 내장 톰캣 통합 버전)
+- `Environment` 준비 (profile, application.yml 값 읽기)
+
+### 2단계 — 컨테이너 초기화 (`refresh()`)
+
+1. **BeanDefinition 수집**
+   - `@ComponentScan`으로 `@Component`/`@Service`/`@Repository`/`@Controller` 스캔
+   - `@EnableAutoConfiguration`으로 클래스패스 기준 자동설정 클래스 조건부 등록
+   - 이 시점엔 메타데이터만 존재, 실제 객체 없음
+
+2. **BeanPostProcessor 등록**
+   - `@Autowired` 처리기, AOP 프록시 생성기 등 개입용 특수 빈 먼저 준비
+
+3. **싱글톤 빈 인스턴스화**
+   - BeanDefinition 기반으로 실제 객체 생성 + 의존성 주입 (생성자 주입이면 필요한 빈부터 먼저 생성)
+   - `@Transactional` 등 AOP 대상이면 이 과정에서 프록시로 교체
+   - 완성된 빈은 내부 캐시에 저장
+
+4. **내장 웹 서버 시작** (웹 앱인 경우)
+
+### 3단계 — 애플리케이션 준비 완료
+- `ApplicationRunner`/`CommandLineRunner` 실행 → 요청 받을 준비 완료
+
+## 🧩 요약 : 컴포넌트 스캔 → 빈 정의 → 인스턴스화 → 프록시 → 서버 시작
+
+- `SpringApplication.run()` → 컨테이너 생성 → 컴포넌트 스캔/자동설정으로 빈 정의 수집 → 실제 빈 생성 + 의존성 주입 → AOP 대상은 프록시로 교체 → (웹 앱이면) 내장 톰캣 시작 → 요청 처리 준비 완료
+
+- **BeanDefinition:** 빈의 메타정보(타입, 스코프, 생성자 인자, 의존관계 등)를 담은 "설계도". 실제 인스턴스 아님
+- **프록시 생성 시점:** `@Transactional`, `@Async` 등 AOP 대상 빈이 생성된 직후, `BeanPostProcessor` 단계에서 원본 대신 프록시로 교체
+- **싱글톤이 기본인 이유:** stateless 서비스/리포지토리는 매번 새로 만들 필요 없이 하나만 공유하는 게 효율적
+- **`@SpringBootApplication`:** `@Configuration` + `@EnableAutoConfiguration` + `@ComponentScan` 조합
+- **기타 스위치성 애노테이션:** `@EnableJpaAuditing`, `@ConfigurationPropertiesScan`, `@EnableScheduling`, `@EnableAsync` — 각각 특정 기능을 켜는 용도, 컨테이너 부팅 흐름 자체와는 무관
 
 <br>
 <br>
