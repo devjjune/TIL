@@ -21,7 +21,7 @@
 - 프록시가 없으면 빈 메서드를 직접 호출해도 스프링이 가로채지 못해서 **매번 새 객체가 생성**된다. 따라서 이 경우엔 빈끼리 서로 메서드로 호출하지 말고, 필요한 빈을 **메서드 파라미터로 받아야** 한다.
 - 대신 프록시를 안 만드니 메모리 사용량 감소, 시작 속도 향상, 런타임 오버헤드 감소라는 장점이 있다.
 
-### 오늘 실제로 본 코드
+### 💥 우리 프로젝트 코드
 `SecurityConfig`는 `jwtFilter`를 필드 주입(`@RequiredArgsConstructor`)으로 받는데, 
 이건 `@Bean` 메서드끼리 서로 호출하는 것과는 별개의 메커니즘이다.
 `jwtFilter`는 `SecurityConfig` 안에 `@Bean`으로 등록된 게 아니라 이미 다른 곳
@@ -142,6 +142,34 @@ ApplicationContext (인터페이스)
 - **싱글톤이 기본인 이유:** stateless 서비스/리포지토리는 매번 새로 만들 필요 없이 하나만 공유하는 게 효율적
 - **`@SpringBootApplication`:** `@Configuration` + `@EnableAutoConfiguration` + `@ComponentScan` 조합
 - **기타 스위치성 애노테이션:** `@EnableJpaAuditing`, `@ConfigurationPropertiesScan`, `@EnableScheduling`, `@EnableAsync` — 각각 특정 기능을 켜는 용도, 컨테이너 부팅 흐름 자체와는 무관
+
+<br>
+<br>
+
+# 🗓️ 2026-07-11 (토) ~ 2026-07-13 (월)
+## 🧩 싱글톤 패턴과 스프링 컨테이너
+
+**📌 블로그 정리:** [스프링 빈은 왜 싱글톤인가 — 그리고 왜 상태를 가지면 안 되는가
+](https://velog.io/@hjy648012/%EC%8A%A4%ED%94%84%EB%A7%81-%EB%B9%88%EC%9D%80-%EC%99%9C-%EC%8B%B1%EA%B8%80%ED%86%A4%EC%9D%B8%EA%B0%80-%EA%B7%B8%EB%A6%AC%EA%B3%A0-%EC%99%9C-%EC%83%81%ED%83%9C%EB%A5%BC-%EA%B0%80%EC%A7%80%EB%A9%B4-%EC%95%88-%EB%90%98%EB%8A%94%EA%B0%80)
+
+<br>
+
+## 🧩 `@Primary` / `@Qualifier`로 프로젝트 개선 아이디어
+
+`@Component`는 "이 구현체를 쓰겠다"는 선택이 아니라 **"컨테이너 관리 대상으로 등록해라"** 는 의미. 같은 인터페이스에 여러 구현체가 `@Component`로 등록되면, 스프링은 어떤 걸 주입해야 할지 몰라서 `NoUniqueBeanDefinitionException` 발생.
+
+| 상황 | 도구 |
+|---|---|
+| 기본 구현체가 명확, 예외적으로만 다른 걸 씀 | `@Primary` (+ 필요한 곳만 `@Qualifier`) |
+| 컴파일 시점에 "이 필드는 항상 이 구현체" | `@Qualifier` |
+| 런타임에 값(사용자 선택 등)에 따라 구현체가 바뀜 | `Map<String, T>` 주입 + 라우팅 로직 |
+
+**적용 가능 지점 (프로젝트 확장 시)**
+- 결제수단이 여러 개로 늘어난다면: `Map<String, PaymentService>` 주입받는 라우터를 만들어 사용자가 고른 타입에 따라 분기 (`@Qualifier`는 런타임 분기엔 부적합, 컴파일 시점 고정 관계에만 적합)
+- 알림 발송(이메일/SMS/푸시)처럼 상황별로 정해진 채널을 고정적으로 쓸 때 → `@Qualifier`
+- 운영/로컬 환경별 구현체 스위칭(Toss 실결제 vs Mock) → `@Primary` + 테스트에서만 `@Qualifier`로 명시
+
+예약(Reservation) 자체는 "구현체 선택" 문제라기보다 책임 분리·트랜잭션 경계·동시성 문제에 가까워서 이 패턴이 덜 어울림.
 
 <br>
 <br>
