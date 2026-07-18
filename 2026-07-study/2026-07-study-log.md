@@ -173,3 +173,32 @@ ApplicationContext (인터페이스)
 
 <br>
 <br>
+
+# 🗓️ 2026-07-14 (화)
+## 🧩 DI 복습하다 발견한 리팩토링 후보: 생성자 vs @PostConstruct
+
+**📌 강의 참고:** 김영한의 스프링 핵심 원리 - 기본편
+
+### 1. 컴포넌트 스캔 & 의존관계 주입
+- `@SpringBootApplication`에 `@ComponentScan` 포함 (관례상 루트 위치)
+- 기본 스캔 대상: `@Component`, `@Controller`, `@Service`, `@Repository`, `@Configuration`
+- 의존관계 주입 4가지 중 **생성자 주입이 최근 표준**
+  - 불변/필수 의존관계에 적합, `final` 사용 가능한 유일한 방식
+  - 생성자 1개면 `@Autowired` 생략 가능 + `@RequiredArgsConstructor` 조합이 요즘 관행
+- 빈이 2개 이상 매칭될 때 해결 순서: `@Autowired` 타입/이름 매칭 → `@Qualifier` → `@Primary`
+
+### 2. 빈 라이프사이클 리팩토링 후보
+- **핵심 원칙**: 생성자는 "객체 생성"만, 주입값을 활용한 초기화는 `@PostConstruct`에서
+- 체크리스트:
+  - `PaymentService`의 `TossPaymentsClient` 생성 위치 (필드/생성자에서 바로 `new` 하면 `secretKey` 주입 전에 실행될 위험)
+  - `CampingImageService`의 `S3Client` 생성 위치 + `@PreDestroy`로 `close()` 정리 로직 유무
+- 판단 기준: "이 필드 준비에 다른 주입값이 필요한가?" → Yes면 `@PostConstruct` 후보
+
+### 3. 로깅
+- `println`과 로깅 프레임워크(Logback 등) 차이: 레벨 조절, 설정 파일로 on/off, 부가정보 자동 포함
+- 로그 레벨: `TRACE < DEBUG < INFO < WARN < ERROR` (기본 INFO 이상)
+- 적용 예정: `application.yml`에 `org.hibernate.SQL: DEBUG` 켜서 QueryDSL 실제 SQL 확인 (N+1 이슈 탐지용)
+
+---
+
+**다음 할 일**: `PaymentService`/`CampingImageService` 코드 직접 열어서 `@PostConstruct` 적용 여부 확인 → 적용 후 서버 재시작 테스트, 로깅 설정 추가해서 QueryDSL 쿼리 확인
