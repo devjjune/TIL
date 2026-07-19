@@ -240,3 +240,13 @@ ApplicationContext (인터페이스)
 
 <br>
 <br>
+
+# 🗓️ 2026-07-18 (토)
+## 🧩 Gradle과 Groovy
+
+`build.gradle` 파일은 Groovy 언어로 작성된다. 빌드 도구인 Gradle이 이 파일을 실행해 프로젝트 구조(의존성, 플러그인, 소스 경로 등)를 계산하고, 그 결과를 IntelliJ에 전달한다.
+
+즉 IntelliJ는 `build.gradle`을 직접 해석하는 게 아니라 Gradle이 실행한 결과를 받아서 쓰는 구조다. 따라서 파일을 수정하면 IntelliJ가 자동으로 인식하지 못하고, **Gradle Sync**를 통해 Gradle을 다시 실행시켜 파일을 재해석해야 변경 사항이 반영된다. 
+
+<br>
+<br>
