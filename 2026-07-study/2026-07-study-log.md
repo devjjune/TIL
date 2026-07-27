@@ -281,3 +281,32 @@ ApplicationContext (인터페이스)
 
 <br>
 <br>
+
+# 🗓️ 2026-07-24 (금)
+## 🧩 String / char / StringBuilder 개념 정리 및 비교
+
+### 불변 vs 가변
+- **String**: 불변(immutable) — 메서드가 원본을 못 바꾸고, 항상 "새 String을 만들어 반환"함. 그래서 반환값을 반드시 다시 담아야 함 (`s = s.toUpperCase()`)
+- **StringBuilder**: 가변(mutable) — 메서드가 원본 객체 자체를 직접 수정함. 반환값 안 담아도 됨 (`sb.append(...)`만으로 충분)
+
+### 원시타입 vs 참조형(객체)
+- **char**: 원시타입(primitive) — 객체가 아닌 순수한 값. 메서드가 없음
+- **Character**: char를 감싼 래퍼 클래스(wrapper class) — 판별/변환 메서드 제공 (`isLowerCase`, `toUpperCase` 등)
+- 원시타입마다 대응하는 래퍼 클래스 존재 (`int`→`Integer`, `boolean`→`Boolean`)
+
+### 왜 String은 `문자열.method()`, Character는 `Character.method(값)`인지
+- String은 객체라서 자기 자신에게 직접 메서드 요청 가능
+- char는 원시타입(객체 아님)이라 점(`.`)으로 메서드 호출 불가 → Character라는 도구 클래스를 빌려서 사용
+
+### println이 배열을 이상하게 찍는 이유
+- `println(객체)` → 내부적으로 그 객체의 `toString()` 호출
+- 배열은 `toString()`을 재정의 안 함 → 기본값("클래스이름@해시코드") 출력됨
+- String은 `toString()`을 재정의해서 "내용 그대로" 반환 → 정상적으로 값이 보임
+- 배열을 예쁘게 출력하려면 `Arrays.toString(배열)` 사용
+
+### split의 끝 공백 함정
+- 중간 연속 구분자는 `split(구분자)` 기본형으로도 안전 (빈 문자열 자동 유지됨)
+- **끝**에 구분자가 있을 때만 자동으로 사라짐 → `split(구분자, -1)`로 방지
+
+<br>
+<br>
