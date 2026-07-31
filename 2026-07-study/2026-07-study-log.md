@@ -310,3 +310,18 @@ ApplicationContext (인터페이스)
 
 <br>
 <br>
+
+# 🗓️ 2026-07-28 (화) ~ 2026-07-30 (목)
+
+**📌 강의 참고:** 김영한의 HTTP 웹 기본 지식
+
+## 🧩 HTTP 메서드 활용
+
+블로그: [HTTP 메서드 활용](https://velog.io/@hjy648012/HTTP-%EB%A9%94%EC%84%9C%EB%93%9C-%ED%99%9C%EC%9A%A9)
+
+## 🧩 HTTP 상태코드
+
+블로그: [HTTP 상태코드](https://velog.io/@hjy648012/HTTP-%EC%83%81%ED%83%9C%EC%BD%94%EB%93%9C)
+
+<br>
+<br>
