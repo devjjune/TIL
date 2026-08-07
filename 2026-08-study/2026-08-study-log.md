@@ -1,3 +1,13 @@
+# 📌 프로젝트 리팩토링 및 고도화
+
+- SecurityConfig 인가 로직 (Authorization)
+- 예외 처리 로직
+- JWT 인증 로직 (Authentication)
+
+
+<br>
+<br>
+
 # 🗓️ 2026-08-03 (월)
 
 ## 🧩 `SecurityConfig`의 `authorizeHttpRequests` 인가 규칙 리팩토링
@@ -11,7 +21,7 @@ Spring Security > Servlet Applications > Authorization(인가) > Authorize HTTP 
   넓은 범위 규칙이 실수로 위에 추가되면 좁은 범위 규칙이 무시될 위험이 있었음
 - `authenticated`, `hasRole` 규칙을 `permitAll` 규칙보다 항상 위에 배치하여, 이후 `permitAll` 규칙이 추가되어도 기존 인증/권한 규칙을 침범하지 못하도록 **일일이 비교하는 방식이 아니라 구조적으로 순서를 강제**함
 - 다른 규칙에 이미 포함되어 동작상 의미 없는 중복 규칙(죽은 코드) 제거
-- Note: `/api/campings/**` permitAll이 GET 외 메서드까지 열려있는 문제는 서비스 로직 확인 후 별도 처리 예정
+- ⚠️ Note: `/api/campings/**` permitAll이 GET 외 메서드까지 열려있는 문제는 서비스 로직 확인 후 별도 처리 예정
 
 <br>
 <br>
@@ -68,6 +78,81 @@ Spring Security > Servlet Applications > Authorization(인가) > Authorize HTTP 
 CORS는 요청을 보낸 출처(origin)가 안전한지를 판단하는 것이고, 서버로부터 응답을 받은 뒤 자바스크립트에 넘기기 전에 브라우저가 확인한다.   
 `authorizeHttpRequests`가 잘못된 사용자로부터 우리 서비스를 보호하는 것이라면, CORS는 잘못된 요청(악성 사이트)으로부터 사용자를 보호하는 것이다.  
 또한 curl이나 Postman처럼 브라우저를 거치지 않는 요청에는 CORS 검증 자체가 적용되지 않으므로, 서버 자원을 지키는 실질적인 방어는 `authorizeHttpRequests`(및 인증)가 맡는다.
+
+⚠️ Note: 별도의 `http.cors(...)` 설정이 없음   
+(`.cors(cors -> cors.configurationSource(corsConfigurationSource()))`를 securityFilterChain()에 추가)
+
+<br>
+<br>
+
+# 🗓️ 2026-08-05 (수) ~ 2026-08-06 (목)
+
+## 🧩 Throwable 계층구조 - 에러, 예외
+
+**Throwable 클래스**: Java에서 `throw`로 던지고 `catch`로 잡을 수 있는 모든 것의 최상위 클래스   
+(Throwable과 그 하위 클래스는 모두 **런타임에 발생**하는 문제를 표현. 컴파일 오류는 여기서 논외고 애초에 throw-catch 대상도 아님)
+
+### 1. Error
+: JVM 레벨의 심각한 문제. **애플리케이션 코드로 복구를 시도하지 않는 게 원칙**
+- `OutOfMemoryError`: 힙 메모리 부족
+- `StackOverflowError`: 재귀 호출 등으로 스택 깊이 초과
+- `NoClassDefFoundError`: 컴파일 땐 있었는데 런타임에 클래스 못 찾음
+
+### 2. Exception
+: 프로그램 로직에서 발생하고, **처리 가능한** 문제
+
+**Checked Exception**: 컴파일러가 `try-catch` 또는 `throws` 처리를 강제, 코드가 맞아도 외부 요인으로 발생 가능해서 실행 중 처리해야 함 (재시도, 대체 로직 등)
+- `IOException`: 입출력 작업 중 문제
+- `FileNotFoundException`: 파일을 찾을 수 없음 (IOException 하위)
+- `SQLException`: DB 작업 중 문제
+- `ClassNotFoundException`: `Class.forName()` 등으로 클래스 로드 실패
+
+**Unchecked Exception (RuntimeException 계열)**: 컴파일러가 강제 안 함, 코드 자체의 버그이므로 애초에 버그가 나지 않도록 작성해야 함  
+- `NullPointerException`: null 객체 참조 시도
+- `ArrayIndexOutOfBoundsException`: 배열 범위 벗어난 접근
+- `IllegalArgumentException`: 메서드에 부적절한 인자 전달
+- `ClassCastException`: 잘못된 타입 캐스팅
+- `ArithmeticException`: 0으로 나누기 등 산술 오류
+- `NumberFormatException`: 문자열→숫자 변환 실패 (IllegalArgumentException 하위)
+
+```
+Throwable
+ ├── Error (복구 시도 X, 잡지 않는 게 관례)
+ │    ex) OutOfMemoryError, StackOverflowError
+ │
+ └── Exception (복구 가능, 처리 대상)
+      ├── Checked Exception (컴파일러가 처리 강제)
+      │    ex) IOException, FileNotFoundException, SQLException
+      │
+      └── RuntimeException = Unchecked Exception (강제 안 함)
+           ex) NullPointerException, IllegalArgumentException, ClassCastException
+```
+
+Error는 "복구할 수 있냐 없냐"로 판단, Checked/Unchecked는 "컴파일러가 처리 여부를 검사하냐 안 하냐"로 판단 
+
+## 🧩 캠핑가잣 예외 처리 클래스 검토 및 리팩토링
+현재 우리 프로젝트의 예외 처리 클래스는 3개로 이루어져 있다.
+- **`ErrorCode`(enum)**: 에러의 종류를 정의. HTTP 상태코드 + 메시지를 세트로 관리.
+- **`CustomException` (`extends RuntimeException`)**: ErrorCode를 담아서 런타임 예외를 던진다.
+  - `super(errorCode.getMessage())`로 Throwable에 메시지 저장
+  - `this.errorCode = errorCode`로 자기 필드에도 보관
+  - unchecked 예외인 RuntimeException을 상속받으므로 컴파일러 강제X
+- **`GlobalExceptionHandler` (`@RestControllerAdvice`)**: 던져진 예외를 최종적으로 잡아서 HTTP 응답으로 변환
+
+### 설계 포인트 💡
+- 서비스 로직에서 발생하는 예외 케이스를 개별 클래스로 분리하지 않고, `ErrorCode` Enum에 담아둔 뒤 `CustomException` 하나가 이를 꺼내 던지는 구조로 설계했다.
+- `CustomException`이 Unchecked 예외인 `RuntimeException`을 상속하도록 하여, 모든 계층에 `throws`를 전파하지 않아도 되게 함으로써 보일러플레이트를 줄였다.
+- `GlobalExceptionHandler`에서 `@ExceptionHandler`로 `CustomException`과 Spring 프레임워크가 던지는 예외들(`MethodArgumentNotValidException`, `AccessDeniedException` 등)을 각각 잡아 처리하고, 어디에도 안 걸리는 나머지 예외는 `Exception.class` 핸들러가 최종적으로 한 번에 잡도록 했다.
+
+### GlobalExceptionHandler 리팩토링
+
+- `ResponseEntity.status(...).body(new ApiResponse<>(...))` 반복되던 패턴 → `buildErrorResponse()` 헬퍼 2개(오버로드)로 통합
+- `@Slf4j` 추가, 로그 레벨 구분해서 적용
+  - `handleException` (catch-all) → `log.error` (필수: 예상 못한 버그 추적용)
+  - `handleCustomException`, `handleAccessDeniedException` → `log.warn` (빈도 파악/비정상 접근 탐지용)
+  - 검증 관련 핸들러는 사용자 실수 성격이라 로깅 생략
+- `handleException(Exception.class)`을 맨 마지막으로 이동 (관례: 구체적 타입 → 포괄적 타입 순서)
+- `ResponseEntity<ApiResponse>` → `ResponseEntity<ApiResponse<?>>` (raw type 경고 제거)
 
 <br>
 <br>
