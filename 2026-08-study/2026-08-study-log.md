@@ -156,3 +156,46 @@ Error는 "복구할 수 있냐 없냐"로 판단, Checked/Unchecked는 "컴파�
 
 <br>
 <br>
+
+# 🗓️ 2026-08-06 (목) ~ 2026-08-07 (금)
+## 🧩 캠핑가잣 JWT 인증 로직 검토
+### 1. JwtFilter 클래스
+- `JwtFilter`는 스프링 시큐리티의 필터 체인에 끼워 넣는 필터 중 하나다.
+- 필터로 동작하기 위해, 관례적으로 `OncePerRequestFilter`을 상속받는다.
+  - 한 요청당 한 번만 실행 보장 - by. final 메서드 `doFilter()`
+  - (DB 조회, SecurityContext 설정이 중복 실행되면 안 됨)
+- 상속받으면 OncePerRequestFilter 추상 클래스에 정의되어 있는 `doFilterInternal()`이라는 추상 메서드를 오버라이드한다.
+
+#### doFilterInternal 메서드 흐름
+1. `/api/auth` 경로 → 무조건 통과 (인증 로직 자체를 안 탐)
+   - 로그인된 상태라 토큰이 있지만 인증 로직 거칠 필요 없을 때 (logout, refresh) 
+2. 쿠키에 토큰 없음 (signup, login) → 통과 (비로그인 사용자, 뒤의 authorizeHttpRequests가 판단)
+3. 토큰 있음 → 검증
+   - 검증 실패(만료 등) → 예외 발생 → catch에서 GlobalExceptionHandler로 위임
+   - 검증 성공 → userId/role 추출 → DB 조회(탈퇴 확인) → Authentication 생성 (인증된 사용자 정보 + 권한 목록 담음) → SecurityContext에 저장
+4. 어느 경우든 마지막엔 filterChain.doFilter(...)로 다음 필터로 진행 (예외 안 났다면)
+
+### 2. JwtProvider 클래스
+
+#### 1) 생성자 — SecretKey 준비
+- `@Value`로 `jwt.secret`, 만료 시간(access/refresh) 주입받음
+- `secret` 문자열 → UTF-8 바이트 배열 → `Keys.hmacShaKeyFor(...)`로 `SecretKey` 생성 (키 길이에 따라 HS256/384/512 자동 결정, 너무 짧으면 `WeakKeyException`으로 앱 시작 자체 실패)
+- 매 요청마다 변환하지 않도록 생성자에서 한 번만 만들어 필드로 재사용
+
+#### 2) 토큰 생성 — createAccessToken / createRefreshToken
+- `Jwts.builder()`로 클레임 조립: `subject`(userId), `claim("role", ...)`(커스텀 클레임), `issuedAt`, `expiration`
+- `signWith(key)`로 서명 → `compact()`로 `xxx.yyy.zzz` 문자열 직렬화
+- Access/Refresh 구조는 동일, 만료 기간만 다름 (accessExpiration vs refreshExpiration)
+
+#### 3) 토큰에서 값 추출 — getRole / getUserId
+- `Jwts.parser().verifyWith(key).build().parseSignedClaims(token)`으로 파싱 + 서명 검증
+- `getPayload()`로 Claims 꺼낸 뒤 `getRole`은 커스텀 클레임 "role", `getUserId`는 `getSubject()`(→ Long 변환)
+- ⚠️ 각각 독립적으로 파싱을 수행 → 같은 토큰에 대해 파싱이 중복됨
+
+#### 4) 검증 — validateToken / validateRefreshToken
+- 둘 다 동일한 파싱 로직으로 서명/만료 검증만 수행 (결과값 Claims는 버림)
+- `validateToken`: 만료 → `CustomException(ACCESS_TOKEN_EXPIRED)` 던짐 / 그 외 실패(서명 불일치, 형식 오류, null) → `false` 리턴 (예외와 boolean이 혼재된 이중적 신호 방식)
+- `validateRefreshToken`: 만료 → `REFRESH_TOKEN_EXPIRED`, 그 외 → `REFRESH_TOKEN_INVALID` (실패를 항상 예외로 통일 — validateToken과 대조됨)
+
+<br>
+<br>
