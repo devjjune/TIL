@@ -241,3 +241,61 @@ userId, role 등
 
 <br>
 <br>
+
+# 🗓️ 2026-08-12 (수)
+## 🧩 JwtProvider 리팩토링: 파싱 로직 통합 및 토큰 생성 메서드 정리
+기존에는 validateToken/getUserId/getRole이 각각 독립적으로 토큰을
+파싱(서명 검증 포함)하고 있어, 같은 토큰에 대해 파싱이 3회 반복됨.
+또한 validateToken은 만료 시 예외, 그 외 실패 시 false를 리턴하는
+이중적인 실패 신호 방식을 사용하고 있었음.
+
+- validateToken(String) 제거, parseClaims(String)으로 대체
+  - 파싱 결과(Claims)를 그대로 반환하여 호출부에서 재사용 가능하게 함
+  - 실패 시 항상 예외를 던지도록 통일 (ACCESS_TOKEN_EXPIRED / INVALID_TOKEN)
+- getUserId, getRole이 String token 대신 Claims를 받도록 변경
+  → 파싱은 parseClaims에서 한 번만 수행, 이후 결과를 재사용
+- createAccessToken/createRefreshToken을 createToken(userId, role, expirationMs)
+  헬퍼로 통합 (만료 시간 값만 다르고 나머지 로직 동일)
+- JwtFilter도 parseClaims 기반으로 함께 수정 (if(validateToken) 분기 제거,
+  검증 실패는 catch에서 일괄 처리)
+
+Note: validateToken이 false를 리턴하던 케이스(서명 불일치 등)는 기존에
+authorizeHttpRequests가 처리해 ACCESS_TOKEN_MISSING으로 응답했으나,
+이제 parseClaims가 즉시 INVALID_TOKEN 예외를 던져 응답 코드가 달라짐
+(둘 다 401이지만 에러 메시지 값 변경 - 프론트 영향 확인 필요)
+
+## 🧩 AOP 개념 정리 — self-invocation 버그의 원인
+애플리케이션 로직은 크게 **핵심 로직**과 **부가 로직**으로 나뉜다. 
+- **핵심 로직**: 객체가 제공하는 기능 (비즈니스 로직)
+- **부가 로직**: 핵심 기능을 보조하는 기능으로, 단독으로 쓰이지 않고 핵심 기능과 함께 쓰인다. (예: 트랜잭션 관리, 로그 추적, 권한 체크 등)
+
+부가 기능은 일반적으로 **횡단 관심사(cross-cutting concern)** 다. 즉, 하나의 클래스에만 속하지 않고 여러 클래스에 걸쳐 동일하게 반복된다.  
+
+따라서 같은 부가 기능을 여러 곳에 적용하면 반복되는 로직이 많아지고 부가 기능 로직이나 적용 대상을 변경할 때 수정이 번거롭다. 
+
+이러한 부가 기능 도입의 문제를 해결하기 위해 **AOP(Aspect-Oriented Programming, 관점 지향 프로그래밍)** 라는 개념이 도입되었다.  
+부가 기능을 핵심 기능으로부터 **분리**해서 한 곳에서 관리하고, 어디에 적용할지도
+선언적으로 지정할 수 있게 한다. OOP를 대체하는 게 아니라, OOP를 보완·확장하는 방법이다.  
+
+| 용어 | 정의 | ReservationService 예시 |
+|---|---|---|
+| **Aspect** | 부가 기능과, 그 부가 기능을 어디에 적용할지를 함께 정의한 모듈 | 트랜잭션 관리 자체가 대표적인 aspect |
+| **Join point** | 프로그램 실행 중 advice가 적용될 수 있는 지점. Spring AOP에서는 항상 **메서드 실행 시점**을 의미 | `cancelReservation()`이 호출되는 순간 |
+| **Advice** | 특정 join point에서 aspect가 실제로 수행하는 동작. Before/After/Around 등 여러 종류가 있음 | `@Transactional`이 트랜잭션을 열고 닫는 동작 |
+| **Pointcut** | 어떤 join point에 advice를 적용할지 걸러내는 규칙(predicate) | "`@Transactional`이 붙은 모든 public 메서드" |
+| **Target object** | advice가 적용되는 대상 객체. Spring AOP는 런타임 프록시 방식이므로, target object는 항상 **프록시로 감싸진 객체** | `reservationService` 빈의 원본 인스턴스 |
+| **AOP proxy** | aspect의 동작(advice 실행)을 실제로 구현하기 위해 프레임워크가 만드는 객체. Spring에서는 **JDK 동적 프록시** 또는 **CGLIB 프록시** | Spring이 `ReservationService`를 감싸서 만든 프록시 객체 |
+| **Weaving** | aspect를 실제 대상 객체에 연결해서 advised object(프록시 적용된 객체)를 만드는 과정. 컴파일 타임/로드 타임/런타임에 할 수 있는데, **Spring AOP는 런타임에 weaving** | Spring 컨테이너가 뜰 때 `ReservationService` 빈을 CGLIB 프록시로 감싸는 과정 |
+
+
+### 왜 이게 중요한가 (Spring AOP의 특징)
+Spring AOP는 **프록시 기반**으로 동작한다. 즉, advice가 실행되려면 반드시
+**프록시 객체를 거쳐서** 메서드가 호출돼야 한다.
+
+→ 이 특징 때문에, 클래스 내부에서 `this.method()`처럼 자기 자신의 메서드를 직접 호출하면
+프록시를 거치지 않고 원본 객체가 바로 실행되어 **advice(예: `@Transactional`)가 적용되지 않는
+self-invocation 문제**가 생긴다. (`cancelReservation()` 내부에서
+`cancelPaymentOutsideTransaction(payment)`를 직접 호출한 게 바로 이 케이스)
+
+<br>
+<br>
