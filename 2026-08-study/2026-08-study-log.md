@@ -335,3 +335,60 @@ self-invocation 문제**가 생긴다. (`cancelReservation()` 내부에서
 
 <br>
 <br>
+
+# 🗓️ 2026-08-17 (월)
+## 🧩 동시성 테스트 예시
+>📌 참고 강의: 재고시스템으로 알아보는 동시성 이슈 해결방법 (최상용)
+
+```java
+@Test
+public void 동시에_100개의_요청() throws InterruptedException {
+
+    int threadCount = 100;
+    ExecutorService executorService = Executors.newFixedThreadPool(32);
+    CountDownLatch latch = new CountDownLatch(threadCount);
+
+    for (int i = 0; i < threadCount; i++) {
+        executorService.submit(() -> {
+            try {
+                stockService.decrease(1L, 1L);
+            } finally {
+                latch.countDown();
+            }
+        });
+    }
+
+    latch.await();
+
+    Stock stock = stockRepository.findById(1L).orElseThrow();
+    // 100 - (1 * 100) = 0
+    assertEquals(0, stock.getQuantity());
+}
+
+/*
+* 레이스 컨디션이 발생해서 테스트 실패
+* 레이스 컨디션: 둘 이상의 스레드가 공유 데이터에 동시에 접근하고 변경하려 할 때 발생하는 문제
+* 따라서 하나의 스레드가 작업을 완료한 이후 다른 스레드가 데이터에 접근할 수 있도록 해야 함
+*/
+```
+
+* **`ExecutorService`** (`java.util.concurrent`): 여러 스레드에서 작업을 실행하고 관리하는 인터페이스
+
+  * `submit()`: 작업을 등록하고 실행하도록 맡기는 메서드
+  * `shutdown()`: 새로운 작업은 받지 않고, 기존 작업을 모두 완료한 뒤 종료
+  * `shutdownNow()`: 실행 중인 작업의 중단을 요청하고 대기 중인 작업을 종료
+
+* **`CountDownLatch`** (`java.util.concurrent`): 여러 작업이 완료될 때까지 다른 스레드가 대기할 수 있도록 해주는 클래스
+
+  * `new CountDownLatch(N)`: 대기할 작업의 개수를 설정
+  * `countDown()`: 카운트를 1 감소시킴
+  * `await()`: 카운트가 0이 될 때까지 현재 스레드를 대기시킴
+  * **일회성**: 카운트가 0이 된 후 재사용할 수 없음
+
+* **`CountDownLatch` → `countDown()` → `await()` → `try-finally`**
+
+  * `await()`: 위에서 실행한 작업들이 **모두 종료될 때까지** 기다림 (`submit()`으로 작업을 시키는 시점과 실제 작업이 종료되는 시점은 다름)
+  * `try-finally`: `try` 안의 작업이 성공하거나 예외가 발생하더라도 `finally` 안의 `countDown()`은 실행됨
+
+<br>
+<br>
