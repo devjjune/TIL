@@ -439,3 +439,21 @@ public interface StockRepository extends JpaRepository<Stock, Long> {
 
 <br>
 <br>
+
+# 🗓️ 2026-08-20 (목)
+## 🧩 Redis 분산락 라이브러리 알아보기
+>📌 참고 강의: 재고시스템으로 알아보는 동시성 이슈 해결방법 (최상용)   
+
+### Lettuce
+- setnx 명령어를 활용하여 분산락 구현
+  - set if not exist의 줄임말로, 기존의 키 값이 없을 때만 세팅
+- spin lock 방식
+  - 락을 획득하려는 스레드가 반복적으로 확인하며 시도하는 방식, 재시도 로직을 개발자가 작성
+
+### Redisson
+- pub-sub 기반으로 Lock 구현 제공
+  - 채널이 스레드에게 락 해제 알려줌
+  - 별도의 재시도 로직 작성할 필요 없음
+
+<br>
+<br>
