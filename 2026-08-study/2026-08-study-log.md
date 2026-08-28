@@ -471,3 +471,81 @@ public interface StockRepository extends JpaRepository<Stock, Long> {
 
 <br>
 <br>
+
+# 🗓️ 2026-08-28 (금)
+## 🧩 PaymentService 리팩토링
+### 1. 결제 승인(confirm) 로직 흐름
+```
+preConfirm()
+[짧은 TX + 락]
+→ 검증
+→ IN_PROGRESS
+→ commit
+→ 락 해제
+
+Toss confirm()
+[TX 없음]
+
+postConfirm()
+[새 TX + 락]
+→ DONE / CONFIRMED
+→ commit
+```
+
+#### 트랜잭션 설계 방식
+
+- 트랜잭션은 여러 DB 작업이 하나의 일관된 작업으로 묶여야 할 때 필요하다.
+  - 예를 들어 `preConfirm()`에서 결제 상태와 다른 결제 진행 여부를 확인하는 시점부터 `IN_PROGRESS`로 변경하는 시점까지는 다른 요청이 중간에 끼어들면 안 된다.
+  - 서로 연관된 여러 DB 변경은 일부만 반영되지 않도록 하나의 트랜잭션으로 묶어, 모두 성공하면 commit하고 중간에 실패하면 함께 rollback되도록 해야 한다.
+
+- 비관적 락과 트랜잭션을 오래 잡고 있는 것은 좋지 않다.
+  - 비관적 락은 보통 락을 획득한 트랜잭션의 생명주기를 따른다. 트랜잭션이 commit/rollback되어 끝나면 락도 해제된다.
+  - 따라서 트랜잭션을 짧게 가져가면 결과적으로 락을 잡고 있는 시간도 짧아진다.
+  - 단, suspend는 트랜잭션 종료가 아니라 일시 중단이므로 락 해제를 의미하지 않는다.
+
+- DB 트랜잭션 안에서는 필요한 DB 작업만 빠르게 끝내고, 외부 API처럼 느리고 처리 시간을 예측하기 어려운 작업은 가능하면 트랜잭션 밖으로 빼는 것이 좋다.
+  - Toss API 호출은 우리 DB의 통제 범위 밖에 있는 외부 네트워크 작업이기 때문에 얼마나 오래 걸릴지 알 수 없다.
+  - 이 호출까지 DB 트랜잭션 안에 포함하면 Toss의 응답을 기다리는 동안 트랜잭션과 락도 계속 유지될 수 있고, 같은 데이터를 사용하려는 다른 요청들이 불필요하게 오래 대기할 수 있다.
+
+- 일반적으로 트랜잭션 경계는 `@Transactional`이 적용된 메서드 호출을 기준으로 형성된다.
+  - 따라서 `confirm()` 전체를 하나의 긴 트랜잭션으로 묶지 않고, DB 작업이 필요한 `preConfirm()`과 `postConfirm()`에 각각 `@Transactional`을 적용해 짧은 트랜잭션으로 나눌 수 있다.
+  - 그 사이의 Toss API 호출은 트랜잭션 없이 실행된다.
+
+#### IN_PROGRESS가 필요한 이유
+- `preConfirm()`의 트랜잭션이 끝나면 commit과 함께 비관적 락도 해제된다.
+- 이후 Toss API를 호출하는 동안에는 락이 없는 상태이기 때문에 다른 결제 요청이 다시 DB에 접근할 수 있다.
+- 따라서 Toss API 호출 전에 현재 결제 상태를 `IN_PROGRESS`로 변경해, 이 결제를 누군가 처리 중이라는 사실을 DB에 남겨둔다.
+- 이후 다른 결제 요청이 들어오더라도 `IN_PROGRESS` 상태를 확인하면 이미 처리 중인 결제로 판단하고 해당 요청을 차단할 수 있다.
+
+즉 역할을 나누면 다음과 같다.
+
+- **비관적 락**: 검증하고 IN_PROGRESS로 변경하는 짧은 순간에 여러 요청이 동시에 같은 상태를 판단하지 못하도록 막는다.
+- **IN_PROGRESS**: 트랜잭션이 끝나 락이 풀린 뒤에도 Toss API 처리 중인 결제를 다른 요청이 다시 진행하지 못하도록 선점 상태를 유지한다.
+
+### 2. 결제 승인 로직의 self-injection을 별도 서비스 호출로 변경
+
+기존에는 같은 클래스 내부의 @Transactional 메서드를 직접 호출할 때 프록시를 우회하는 self-invocation 문제를 self-injection 방식으로 해결하고 있었다.
+```java
+@Lazy
+@Autowired
+private PaymentService self;
+```
+
+self.preConfirm(), self.postConfirm()처럼 자기 자신의 프록시 빈을 다시 주입받아 호출함으로써 각 메서드의 @Transactional이 정상적으로 적용되도록 한 방식이다.
+
+이번 리팩토링에서는 preConfirm(), postConfirm(), releaseConfirm()처럼 트랜잭션이 필요한 결제 승인 DB 로직을 PaymentConfirmTransactionService라는 별도 서비스로 분리했다.
+```java
+PaymentService.confirm()
+    ↓
+PaymentConfirmTransactionService.preConfirm()
+    ↓
+Toss API confirm()
+    ↓
+PaymentConfirmTransactionService.postConfirm()
+```
+이렇게 별도 빈을 호출하면 해당 서비스의 Spring 프록시를 자연스럽게 거치기 때문에, 프록시를 다시 타기 위한 self-injection이 필요하지 않다.
+
+기존의 `preConfirm → Toss API → postConfirm`이라는 결제 승인 흐름 자체는 그대로 유지하면서, self-injection 의존성을 제거하고 트랜잭션이 필요한 DB 로직과 전체 승인 흐름을 조율하는 역할을 분리했다.
+
+<br>
+<br>
