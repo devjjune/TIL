@@ -457,3 +457,17 @@ public interface StockRepository extends JpaRepository<Stock, Long> {
 
 <br>
 <br>
+
+# 🗓️ 2026-08-23 (일) ~  2026-08-27 (목)
+## 🧩 ReservationService 리팩토링
+### 1. 예약 생성 로직 흐름
+1. 사용자가 사이트 ID, 체크인/체크아웃 날짜, 인원수 등의 예약 정보를 보내고 create()가 실행된다. 
+2. 날짜, 사이트 상태, 최대 수용 인원 등을 검증한 뒤, **같은 사이트에서 새 예약 기간과 겹치는 기존 예약들을 조회**한다. (리포지토리)
+3. 조회되는 기존 예약에는 `PESSIMISTIC_WRITE` 락이 적용된다. 단순히 수정되지 못하게 하기 위해서가 아니라, **이 예약들을 대상으로 재고 판단을 하는 동안, 다른 트랜잭션이 같은 데이터에 충돌하는 쓰기 작업을 하지 못하도록 잠그는 것**이다. 
+4. 총 사이트 수와 현재 겹치는 예약 수를 비교한다. **이미 겹치는 예약 수가 총 사이트 수와 같거나 많으면 새 예약을 하나 더 받을 수 없다.**
+
+### 2. 결제 취소 로직을 별도 서비스로 분리해 self-invocation 문제 해결
+트러블슈팅 블로그: [Spring @Transactional이 적용되지 않은 이유: Self-Invocation과 프록시 동작 원리](https://velog.io/@hjy648012/Spring-Transactional%EC%9D%B4-%EC%A0%81%EC%9A%A9%EB%90%98%EC%A7%80-%EC%95%8A%EC%9D%80-%EC%9D%B4%EC%9C%A0-Self-Invocation%EA%B3%BC-%ED%94%84%EB%A1%9D%EC%8B%9C-%EB%8F%99%EC%9E%91-%EC%9B%90%EB%A6%AC)
+
+<br>
+<br>
