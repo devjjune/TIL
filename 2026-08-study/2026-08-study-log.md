@@ -549,3 +549,39 @@ PaymentConfirmTransactionService.postConfirm()
 
 <br>
 <br>
+
+# 🗓️ 2026-08-31 (월)
+## 🧩 ReservationService의 예약 취소 로직에서 트랜잭션 설계 개선
+외부 결제 API를 호출하는 예약 취소 로직에서 비관적 락이 장기간 유지되는 문제를 발견했다.   
+기존 NOT_SUPPORTED 방식은 바깥 트랜잭션을 일시 중단할 뿐 종료하지 않아 락 점유 시간을 줄이지 못했다.   
+
+이를 해결하기 위해 취소 처리를 `prepare → external API → complete` 단계로 분리하고 `CANCEL_IN_PROGRESS` 중간 상태를 도입하여, 트랜잭션과 락을 짧게 유지하면서도 중복 취소를 방지하도록 개선했다. 
+
+앞서 살펴보았던 결제 승인 로직처럼 트랜잭션을 짧게 가져가 외부 API 호출을 트랜잭션 바깥에서 수행함으로써 비관적 락을 보유하는 시간을 최소화하는 것이다. 
+```
+[결제 승인]
+
+preConfirm()
+READY → IN_PROGRESS
+commit + 락 해제
+
+Toss 승인
+
+postConfirm()
+IN_PROGRESS → DONE
+```
+```
+[결제 취소]
+
+prepareCancel()
+DONE → CANCEL_IN_PROGRESS
+commit + 락 해제
+
+Toss 취소
+
+completeCancel()
+CANCEL_IN_PROGRESS → CANCELLED
+```
+
+<br>
+<br>
