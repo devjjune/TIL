@@ -3,6 +3,7 @@
 - SecurityConfig 인가 로직 (Authorization)
 - 예외 처리 로직
 - JWT 인증 로직 (Authentication)
+- 예약/결제 로직
 
 
 <br>
@@ -553,7 +554,7 @@ PaymentConfirmTransactionService.postConfirm()
 # 🗓️ 2026-08-31 (월)
 ## 🧩 ReservationService의 예약 취소 로직에서 트랜잭션 설계 개선
 외부 결제 API를 호출하는 예약 취소 로직에서 비관적 락이 장기간 유지되는 문제를 발견했다.   
-기존 NOT_SUPPORTED 방식은 바깥 트랜잭션을 일시 중단할 뿐 종료하지 않아 락 점유 시간을 줄이지 못했다.   
+기존 `NOT_SUPPORTED` 방식은 바깥 트랜잭션을 일시 중단할 뿐 종료하지 않아 락 점유 시간을 줄이지 못했다.   
 
 이를 해결하기 위해 취소 처리를 `prepare → external API → complete` 단계로 분리하고 `CANCEL_IN_PROGRESS` 중간 상태를 도입하여, 트랜잭션과 락을 짧게 유지하면서도 중복 취소를 방지하도록 개선했다. 
 
@@ -583,5 +584,31 @@ completeCancel()
 CANCEL_IN_PROGRESS → CANCELLED
 ```
 
+#### 리팩토링 이후 로직 흐름
+```
+prepareCancel()
+→ TX 시작
+→ Reservation 락
+→ 취소 가능 여부 검증
+→ DONE → CANCEL_IN_PROGRESS
+→ commit
+→ 락 해제
+
+Toss cancel()
+→ TX 없음
+
+성공
+→ completeCancel()
+→ 새 TX
+→ Reservation 다시 락
+→ Payment CANCELLED
+→ Reservation CANCELLED
+→ commit
+
+실패
+→ releaseCancel()
+→ 새 TX
+→ CANCEL_IN_PROGRESS → DONE
+```
 <br>
 <br>
