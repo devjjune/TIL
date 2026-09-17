@@ -442,3 +442,219 @@ ExecutorService의 스레드풀 (submit(() -> { ... }) 내부 코드 실행)
 ※ `CountDownLatch`의 `countDown()`과 `await()`은 보통 서로 맞물려 사용된다고 생각하면 이해가 쉽다.  
 `countDown()`으로 카운트를 1씩 줄이고, `await()`은 카운트가 0이 될 때까지 현재 스레드를 대기시킨다.
 단, 두 메서드가 반드시 1:1로 호출되는 것은 아니다.
+
+<br>
+<br>
+
+# 🗓️ 2026-09-17 (목)
+## 🧩 Docker 기반 CI/CD 배포 파이프라인 복습
+- CI (Continuous Integration) = 코드 변경 시 **빌드 + 테스트** 등을 자동으로 수행
+- CD (Continuous Delivery/Deployment) = CI를 통과한 결과물을 **배포**하는 과정을 자동화
+
+```
+Dockerfile (이미지 설정 작성)
+   ↓ build
+Docker Image 
+   ↓ run
+Container 생성 및 실행 (실행 중인 앱 환경)
+```
+- Docker Compose: 여러 개의 컨테이너를 한 번에 관리할 수 있는 도구
+- Docker Compose를 실행 → compose.yml에 정의된 컨테이너들이 한 번에 실행
+    - (기존 이미지 없으면) 이미지 빌드/다운로드 → 컨테이너 생성 → 실행
+
+
+**캠핑가잣 프로젝트 구조**
+```
+코드 작성
+   ↓
+GitHub push
+   ↓
+────── CI ──────
+Gradle Build
+테스트 실행
+Checkstyle
+JaCoCo
+   ↓
+────── CD ──────
+Docker Image 생성
+서버에 전달
+EC2에서 새 버전 실행
+   ↓
+────── 배포 완료 ──────
+사용자가 접속 가능
+```
+
+#### 배포 실습 과정
+: 로컬 실행 확인 → 2. AWS 인프라 구성 → 3. 수동 배포 성공 → 4. CI/CD 연결
+```
+[1] 로컬
+Docker Compose로 프로젝트 정상 실행
+        ↓
+[2] AWS
+EC2 생성
+RDS(MySQL) 생성
+보안그룹/환경변수 설정
+        ↓
+[3] 수동 배포
+EC2에 접속
+Docker 설치
+코드/이미지 가져오기
+Spring Boot 컨테이너 실행
+        ↓
+API 요청해서 정상 동작 확인
+        ↓
+[4] CI/CD
+GitHub Actions
+        ↓
+Build + Test            ← CI
+        ↓
+Docker Image Build
+        ↓
+EC2에 새 버전 배포      ← CD
+```
+
+<br>
+
+## 🧩 캠핑가잣 프로젝트 CI/CD 배포 흐름 (GitHub Actions 이용)
+
+```
+feature/refactor 브랜치
+        │
+        │ PR → dev
+        ▼
+┌──────────────────────────────┐
+│ ci.yml                       │
+│                              │
+│ 테스트                         │
+│ JaCoCo 커버리지                │
+│ Checkstyle                   │
+│ PR에 결과 코멘트                │
+└──────────────────────────────┘
+        │
+        │ PR merge
+        ▼
+       dev
+        │
+        │ push 발생
+        ▼
+┌──────────────────────────────┐
+│ deploy.yml                   │
+│                              │
+│ ① 다시 테스트                  │
+│       ↓                      │
+│ ② Docker Image build        │
+│       ↓                      │
+│ ③ Docker Hub push           │
+│       ↓                      │
+│ ④ EC2 SSH 접속               │
+│       ↓                      │
+│ ⑤ EC2가 최신 Image pull       │
+│       ↓                      │
+│ ⑥ Container 재생성            │
+│       ↓                      │
+│ ⑦ Health Check              │
+└──────────────────────────────┘
+```
+
+### 1. 로컬 개발 환경
+
+로컬에서는 개발/디버깅 편의를 위해 Spring Boot를 IDE에서 직접 실행하고,
+Docker Compose로 인프라만 실행한다.  
+
+- Spring Boot → IntelliJ에서 실행
+- MySQL → Docker
+- Prometheus → Docker
+- Grafana → Docker
+
+(반면 운영에서는 Spring Boot를 Docker 이미지로 만들어 EC2의 컨테이너에서 실행한다. 따라서 로컬과 운영 환경에서 Docker로 관리하는 대상은 다를 수 있다.)
+
+### 2. CI - `ci.yml`
+
+`dev` 브랜치로 PR이 생성되거나 업데이트되면 CI가 실행된다.
+
+GitHub Actions Runner라는 임시 Ubuntu 환경에서 다음 작업을 수행한다.
+
+1. Repository 코드 Checkout
+2. JDK 설치
+3. Gradle Test 실행
+4. JaCoCo 테스트 커버리지 측정
+5. Checkstyle 검사
+6. 결과를 PR에 표시
+
+즉, CI는 코드 변경 후 테스트와 코드 품질 검사를 자동으로 수행하는 과정이다.
+
+### 3. CD - `deploy.yml`
+
+PR이 `dev`에 merge되면 `push` 이벤트가 발생하고 `deploy.yml`이 실행된다.
+
+#### 전체 흐름
+```
+dev push
+→ Test
+→ Docker Image Build
+→ Docker Hub Push
+→ EC2 접속
+→ Docker Image Pull
+→ Container 재생성
+→ Health Check
+```
+`needs: test`를 사용하여 테스트가 성공한 경우에만 배포가 진행된다.
+
+### 4. Docker Image는 어디서 만들어지는가?
+
+Docker Image는 EC2가 아니라 GitHub Actions Runner에서 만들어진다.
+```
+GitHub Actions Runner
+→ `docker build` → Docker Image 생성
+→ `docker push` → Docker Hub에 Image 저장
+
+EC2
+→ `docker pull` → Docker Hub에서 Image 다운로드
+→ `docker compose up` → Container 생성 및 실행
+```
+
+따라서 EC2에는 Spring Boot 소스코드가 없어도 된다.
+실행에 필요한 Docker Image와 `docker-compose.prod.yml`만 있으면 된다.
+
+### 5. 운영 환경변수 관리
+
+DB 비밀번호, JWT Secret 등의 민감정보는 코드에 저장하지 않고 GitHub Secrets에 저장한다.
+```
+GitHub Secrets
+→ 배포 시 SSH를 통해 EC2로 전달
+→ EC2의 `.env` 생성
+→ `docker-compose.prod.yml`에서 환경변수로 사용
+```
+
+### 6. 배포 후 Health Check
+
+Container를 실행했다고 바로 배포 성공으로 처리하지 않는다.
+
+Spring Boot Actuator의 `/actuator/health`를 일정 간격으로 호출하여 애플리케이션이 실제로 정상 실행됐는지 확인한다.
+
+현재 구조는 Health Check 실패를 감지할 수 있지만,
+이전 버전으로 자동 Rollback하는 기능은 없다.
+
+### 7. 전체 구조
+```
+로컬
+→ 코드 작성
+→ PR
+
+GitHub Actions
+→ CI(Test / JaCoCo / Checkstyle)
+→ Docker Image Build
+
+Docker Hub
+→ Docker Image 저장
+
+EC2
+→ Image Pull
+→ Container 실행
+
+RDS
+→ 운영 DB
+```
+
+<br>
+<br>
